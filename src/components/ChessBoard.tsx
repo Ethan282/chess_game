@@ -108,7 +108,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   };
 
   return (
-    <div className="relative h-full w-full max-h-full max-w-full aspect-square flex items-center justify-center p-0.5 sm:p-1 select-none chess-3d-stage">
+    <div className="relative h-full w-full max-h-full max-w-full aspect-square flex items-center justify-center p-2 sm:p-3 select-none chess-3d-stage">
       {/* 3D Board Extruded Box Container */}
       <div
         className="relative w-full h-full wood-rim-frame rounded-2xl p-2 sm:p-3 md:p-3.5 chess-3d-board-wrapper shadow-2xl"

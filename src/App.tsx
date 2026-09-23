@@ -904,11 +904,11 @@ export default function App() {
       />
 
       {/* Main Parlor Canvas: Deep Wooden Desk Backing */}
-      <main className="flex-1 min-h-0 overflow-hidden flex flex-col xl:flex-row items-center justify-center p-1.5 sm:p-2 md:p-3 gap-2 lg:gap-4 max-w-7xl mx-auto w-full">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col xl:flex-row items-center justify-center px-3 sm:px-6 md:px-8 py-1.5 sm:py-2 gap-3 lg:gap-6 xl:gap-8 w-full max-w-[1720px] mx-auto">
         {/* Center Arena: 3D Chess Board Stage with Clocks & HUD */}
-        <div className="flex-1 min-h-0 h-full max-h-full flex flex-col items-center justify-between w-full max-w-[580px] shrink">
+        <div className="h-full max-h-full flex flex-col items-center justify-between shrink-0 w-full xl:w-[min(calc(100dvh-105px),calc(100vw-460px),900px)]">
           {/* Top Player HUD (Clocks & Captures) */}
-          <div className="shrink-0 w-full flex items-center justify-between gap-2 px-0.5">
+          <div className="shrink-0 w-full flex items-center justify-between gap-3 px-0.5">
             <div className="flex-1 min-w-0">
               <GameClock
                 seconds={topPlayerColor === 'w' ? whiteSeconds : blackSeconds}
@@ -980,10 +980,10 @@ export default function App() {
             </div>
           )}
 
-          {/* Main Board Arena with Integrated Evaluation Gauge beside Board */}
-          <div className="flex-1 min-h-0 w-full flex items-center justify-center gap-1.5 sm:gap-2.5 my-auto overflow-hidden">
-            {/* Evaluation Gauge snugly beside board */}
-            <div className="hidden sm:flex flex-col items-center justify-center h-full max-h-full shrink-0 py-0.5">
+          {/* Main Board Arena with Integrated Evaluation Gauge shifted cleanly to the left */}
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center gap-4 sm:gap-6 md:gap-8 my-auto overflow-hidden">
+            {/* Evaluation Gauge shifted cleanly to the left beside board */}
+            <div className="hidden sm:flex flex-col items-center justify-center h-full max-h-full shrink-0 py-3 sm:py-4 md:py-6 mr-1 sm:mr-2">
               <EvaluationBar score={evalScore} orientation={boardOrientation} />
             </div>
 
@@ -1011,7 +1011,7 @@ export default function App() {
           </div>
 
           {/* Bottom Player HUD (Clocks & Captures) */}
-          <div className="shrink-0 w-full flex items-center justify-between gap-2 px-0.5">
+          <div className="shrink-0 w-full flex items-center justify-between gap-3 px-0.5">
             <div className="flex-1 min-w-0">
               <GameClock
                 seconds={bottomPlayerColor === 'w' ? whiteSeconds : blackSeconds}
@@ -1033,7 +1033,7 @@ export default function App() {
         </div>
 
         {/* Right Sidebar: Desktop View (hidden on mobile/tablet) */}
-        <aside className="hidden xl:flex w-[320px] 2xl:w-[340px] flex-col gap-2.5 self-stretch justify-between shrink-0 min-h-0 h-full max-h-full">
+        <aside className="hidden xl:flex flex-1 min-w-[340px] max-w-[460px] flex-col gap-2.5 self-stretch justify-between shrink-0 min-h-0 h-full max-h-full">
           {/* Controls Panel */}
           <div className="shrink-0">
             <GameControls
@@ -1065,7 +1065,7 @@ export default function App() {
           </div>
 
           {/* Status badge and Fair Play notice */}
-          <div className="shrink-0 flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/50">
+          <div className="shrink-0 flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/60">
             <span className="flex items-center gap-1.5 font-serif">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
               FIDE Rules Compliant

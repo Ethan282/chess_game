@@ -45,9 +45,9 @@ export const GameClock: React.FC<GameClockProps> = ({
           : 'bg-[#140d08]/80 border-amber-950/40 opacity-70 hover:opacity-85'
       }`}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
         {/* Piece color dot with active radiant halo */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-center shrink-0">
           <div
             className={`w-3.5 h-3.5 rounded-full border shadow-sm transition-all ${
               isWhite
@@ -64,14 +64,17 @@ export const GameClock: React.FC<GameClockProps> = ({
           )}
         </div>
 
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`text-xs font-bold tracking-wide truncate max-w-[110px] transition-colors ${
-                isActive ? 'text-amber-100 font-serif' : 'text-amber-200/60'
-              }`}
-            >
-              {playerName}
+        <div className="flex flex-col min-w-0 justify-center">
+          <span
+            className={`text-xs sm:text-sm font-bold tracking-wide truncate transition-colors ${
+              isActive ? 'text-amber-100 font-serif' : 'text-amber-200/70'
+            }`}
+          >
+            {playerName}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-amber-200/40 uppercase tracking-wider font-mono-code">
+              {isWhite ? 'White' : 'Black'}
             </span>
             {/* Active Turn Badge */}
             {isActive && (
@@ -81,9 +84,6 @@ export const GameClock: React.FC<GameClockProps> = ({
               </span>
             )}
           </div>
-          <span className="text-[10px] text-amber-200/40 uppercase tracking-wider font-mono-code">
-            {isWhite ? 'White' : 'Black'}
-          </span>
         </div>
       </div>
 
