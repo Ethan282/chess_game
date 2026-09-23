@@ -39,7 +39,7 @@ export const GameClock: React.FC<GameClockProps> = ({
 
   return (
     <div
-      className={`relative px-3 py-2 rounded-xl transition-all duration-300 flex items-center justify-between border ${
+      className={`relative px-2.5 py-1 sm:py-1.5 rounded-xl transition-all duration-300 flex items-center justify-between border ${
         isActive
           ? 'bg-gradient-to-r from-[#2f1d13] via-[#3a2418] to-[#25170e] border-amber-400/90 shadow-[0_0_20px_rgba(245,158,11,0.35),inset_0_0_12px_rgba(245,158,11,0.15)] ring-2 ring-amber-400/60 scale-[1.01]'
           : 'bg-[#140d08]/80 border-amber-950/40 opacity-70 hover:opacity-85'

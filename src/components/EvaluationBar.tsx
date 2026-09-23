@@ -25,7 +25,7 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({ score, orientation
   };
 
   return (
-    <div className="relative w-4 h-full min-h-[300px] max-h-[520px] rounded-full overflow-hidden bg-[#241a15] border border-amber-900/50 shadow-inner flex flex-col justify-end">
+    <div className="relative w-3.5 sm:w-4 h-full min-h-0 max-h-full rounded-full overflow-hidden bg-[#241a15] border border-amber-900/50 shadow-inner flex flex-col justify-end">
       {/* Black's section (top if White orientation) */}
       <div
         className="w-full bg-[#1b140f] transition-all duration-500 ease-out"

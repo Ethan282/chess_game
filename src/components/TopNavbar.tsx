@@ -42,7 +42,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   isAiThinking = false,
 }) => {
   return (
-    <header className="w-full flex flex-wrap items-center justify-between gap-3 px-4 md:px-8 py-2.5 md:py-3 border-b border-amber-950/60 bg-[#140e0a]/95 backdrop-blur-md sticky top-0 z-30 shadow-lg">
+    <header className="w-full flex items-center justify-between gap-2 px-3 sm:px-6 py-1.5 sm:py-2 border-b border-amber-950/60 bg-[#140e0a]/95 backdrop-blur-md shrink-0 z-30 shadow-lg">
       {/* Zone 1: Wordmark & Logo */}
       <div className="flex items-center gap-3">
         <a href="/" className="text-lg md:text-xl font-serif font-bold tracking-tight text-amber-100 hover:text-amber-200 transition-colors shrink-0 flex items-center gap-2">

@@ -878,7 +878,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#100b07] text-[#e8e4dc] flex flex-col selection:bg-amber-800/40">
+    <div className="h-screen h-[100dvh] w-screen max-w-full overflow-hidden bg-[#100b07] text-[#e8e4dc] flex flex-col selection:bg-amber-800/40 select-none">
       {/* Top Navbar with 3-Mode Selector */}
       <TopNavbar
         mode={gameMode}
@@ -904,12 +904,12 @@ export default function App() {
       />
 
       {/* Main Parlor Canvas: Deep Wooden Desk Backing */}
-      <main className="flex-1 flex flex-col xl:flex-row items-center justify-center p-2 sm:p-3 md:p-4 gap-3 lg:gap-5 max-w-7xl mx-auto w-full">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col xl:flex-row items-center justify-center p-1.5 sm:p-2 md:p-3 gap-2 lg:gap-4 max-w-7xl mx-auto w-full">
         {/* Center Arena: 3D Chess Board Stage with Clocks & HUD */}
-        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-[620px]">
+        <div className="flex-1 min-h-0 h-full max-h-full flex flex-col items-center justify-between w-full max-w-[580px] shrink">
           {/* Top Player HUD (Clocks & Captures) */}
-          <div className="w-full flex items-center justify-between gap-2.5 mb-1.5 px-0.5">
-            <div className="flex-1">
+          <div className="shrink-0 w-full flex items-center justify-between gap-2 px-0.5">
+            <div className="flex-1 min-w-0">
               <GameClock
                 seconds={topPlayerColor === 'w' ? whiteSeconds : blackSeconds}
                 isActive={game.turn() === topPlayerColor}
@@ -919,7 +919,7 @@ export default function App() {
                 isThinking={gameMode === 'ai' && topPlayerColor !== humanColor && isAiThinking}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CapturedPieces
                 captured={topPlayerColor === 'w' ? capturedPieces.w : capturedPieces.b}
                 color={topPlayerColor === 'w' ? 'b' : 'w'}
@@ -928,28 +928,26 @@ export default function App() {
             </div>
           </div>
 
-
-
           {/* Dynamic Last Move Announcement Pill (Hidden in Pro mode) */}
           {skillMode !== 'pro' && lastMove && moveHistory.length > 0 && (
             <div
-              className={`mb-1.5 w-full px-3 py-1 rounded-full text-xs font-medium flex items-center justify-between gap-3 shadow-md transition-all border animate-in fade-in duration-300 ${
+              className={`shrink-0 my-0.5 w-full px-3 py-0.5 rounded-full text-xs font-medium flex items-center justify-between gap-2 shadow-md transition-all border animate-in fade-in duration-300 ${
                 gameMode === 'ai' && moveHistory[moveHistory.length - 1].color !== humanColor
                   ? 'bg-gradient-to-r from-amber-950/90 via-[#2f1c0f]/95 to-amber-950/90 border-amber-500/70 text-amber-200'
                   : 'bg-[#18100a]/90 border-amber-950/60 text-amber-200/80'
               }`}
             >
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                <span className="font-semibold text-amber-100">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+                <span className="font-semibold text-amber-100 shrink-0">
                   {getPlayerLabel(moveHistory[moveHistory.length - 1].color)}:
                 </span>
-                <span className="font-mono-code font-bold text-amber-300 tracking-wide">
+                <span className="font-mono-code font-bold text-amber-300 tracking-wide shrink-0">
                   {moveHistory[moveHistory.length - 1].san}
                 </span>
               </div>
 
-              <div className="flex items-center gap-1 text-[11px] font-mono-code text-amber-300/80 bg-black/40 px-2 py-0.5 rounded-full border border-amber-900/40">
+              <div className="flex items-center gap-1 text-[11px] font-mono-code text-amber-300/80 bg-black/40 px-2 py-0.5 rounded-full border border-amber-900/40 shrink-0">
                 <span>{moveHistory[moveHistory.length - 1].from.toUpperCase()}</span>
                 <span>→</span>
                 <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
@@ -962,7 +960,7 @@ export default function App() {
 
           {/* Active AI Thinking Indicator Banner */}
           {isAiThinking && (
-            <div className="mb-1.5 flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-600/50 text-xs font-medium text-amber-200 animate-pulse">
+            <div className="shrink-0 my-0.5 flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/50 text-xs font-medium text-amber-200 animate-pulse">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>StockBot is calculating optimal variations...</span>
             </div>
@@ -970,49 +968,51 @@ export default function App() {
 
           {/* Puzzle Prompt Indicator Banner */}
           {gameMode === 'puzzle' && activePuzzle && (
-            <div className="mb-1.5 w-full px-4 py-2 rounded-xl bg-[#1e2a1b] border border-emerald-800/60 text-xs text-emerald-200 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-emerald-400" />
-                <span className="font-semibold">{activePuzzle.title}:</span>
-                <span className="text-emerald-100/80">{activePuzzle.prompt}</span>
+            <div className="shrink-0 my-0.5 w-full px-3 py-1 rounded-xl bg-[#1e2a1b]/95 border border-emerald-800/60 text-xs text-emerald-200 flex items-center justify-between">
+              <div className="flex items-center gap-1.5 truncate">
+                <Trophy className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="font-semibold text-emerald-300 shrink-0">{activePuzzle.title}:</span>
+                <span className="text-emerald-100/80 truncate text-[11px]">{activePuzzle.prompt}</span>
               </div>
-              <span className="font-mono-code text-[11px] text-emerald-300">
+              <span className="font-mono-code text-[11px] text-emerald-300 shrink-0 ml-2">
                 Move {Math.floor(puzzleMoveIndex / 2) + 1}
               </span>
             </div>
           )}
 
           {/* Main Board Arena with Integrated Evaluation Gauge beside Board */}
-          <div className="relative flex items-center justify-center gap-2 sm:gap-3 w-full">
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center gap-1.5 sm:gap-2.5 my-auto overflow-hidden">
             {/* Evaluation Gauge snugly beside board */}
-            <div className="hidden sm:flex flex-col items-center justify-center h-[min(480px,calc(100vh-190px))] py-1">
+            <div className="hidden sm:flex flex-col items-center justify-center h-full max-h-full shrink-0 py-0.5">
               <EvaluationBar score={evalScore} orientation={boardOrientation} />
             </div>
 
             {/* The 3D Wooden Chess Board */}
-            <ChessBoard
-              board={game.board()}
-              turn={game.turn() as PlayerColor}
-              playerOrientation={boardOrientation}
-              selectedSquare={selectedSquare}
-              validMoves={validMoves}
-              lastMove={lastMove}
-              inCheckSquare={inCheckSquare}
-              hintMove={skillMode === 'pro' ? null : hintMove}
-              cameraView={cameraView}
-              onSquareClick={handleSquareClick}
-              onPieceDrop={handlePieceDrop}
-              disabled={isAiThinking}
-              showMovePoints={skillMode !== 'pro'}
-              showLastMoveHighlight={skillMode !== 'pro'}
-              invalidSquare={invalidSquare}
-              isGameStarted={isGameStarted}
-            />
+            <div className="h-full max-h-full aspect-square flex items-center justify-center max-w-full">
+              <ChessBoard
+                board={game.board()}
+                turn={game.turn() as PlayerColor}
+                playerOrientation={boardOrientation}
+                selectedSquare={selectedSquare}
+                validMoves={validMoves}
+                lastMove={lastMove}
+                inCheckSquare={inCheckSquare}
+                hintMove={skillMode === 'pro' ? null : hintMove}
+                cameraView={cameraView}
+                onSquareClick={handleSquareClick}
+                onPieceDrop={handlePieceDrop}
+                disabled={isAiThinking}
+                showMovePoints={skillMode !== 'pro'}
+                showLastMoveHighlight={skillMode !== 'pro'}
+                invalidSquare={invalidSquare}
+                isGameStarted={isGameStarted}
+              />
+            </div>
           </div>
 
           {/* Bottom Player HUD (Clocks & Captures) */}
-          <div className="w-full flex items-center justify-between gap-2.5 mt-1.5 px-0.5">
-            <div className="flex-1">
+          <div className="shrink-0 w-full flex items-center justify-between gap-2 px-0.5">
+            <div className="flex-1 min-w-0">
               <GameClock
                 seconds={bottomPlayerColor === 'w' ? whiteSeconds : blackSeconds}
                 isActive={game.turn() === bottomPlayerColor}
@@ -1022,7 +1022,7 @@ export default function App() {
                 isThinking={gameMode === 'ai' && bottomPlayerColor !== humanColor && isAiThinking}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CapturedPieces
                 captured={bottomPlayerColor === 'w' ? capturedPieces.w : capturedPieces.b}
                 color={bottomPlayerColor === 'w' ? 'b' : 'w'}
@@ -1033,28 +1033,30 @@ export default function App() {
         </div>
 
         {/* Right Sidebar: Desktop View (hidden on mobile/tablet) */}
-        <aside className="hidden xl:flex w-[330px] flex-col gap-3 self-stretch justify-start shrink-0">
+        <aside className="hidden xl:flex w-[320px] 2xl:w-[340px] flex-col gap-2.5 self-stretch justify-between shrink-0 min-h-0 h-full max-h-full">
           {/* Controls Panel */}
-          <GameControls
-            mode={gameMode}
-            skillMode={skillMode}
-            cameraView={cameraView}
-            onChangeCamera={setCameraView}
-            onFlipBoard={handleFlipBoard}
-            onUndo={handleUndoMove}
-            onHint={handleCalculateHint}
-            hasActiveHint={!!hintMove}
-            onOpenFenPgn={() => setIsFenPgnModalOpen(true)}
-            onResign={handleResign}
-            onOfferDraw={handleOfferDraw}
-            canUndo={moveHistory.length > 0}
-            isAiThinking={isAiThinking}
-            clockPreset={clockPreset}
-            onOpenLobby={() => setShowStartScreen(true)}
-          />
+          <div className="shrink-0">
+            <GameControls
+              mode={gameMode}
+              skillMode={skillMode}
+              cameraView={cameraView}
+              onChangeCamera={setCameraView}
+              onFlipBoard={handleFlipBoard}
+              onUndo={handleUndoMove}
+              onHint={handleCalculateHint}
+              hasActiveHint={!!hintMove}
+              onOpenFenPgn={() => setIsFenPgnModalOpen(true)}
+              onResign={handleResign}
+              onOfferDraw={handleOfferDraw}
+              canUndo={moveHistory.length > 0}
+              isAiThinking={isAiThinking}
+              clockPreset={clockPreset}
+              onOpenLobby={() => setShowStartScreen(true)}
+            />
+          </div>
 
           {/* Move History / Notation Box */}
-          <div className="flex-1 min-h-[300px] max-h-[520px]">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <MoveHistory
               moves={moveHistory}
               currentMoveIndex={viewMoveIndex}
@@ -1063,7 +1065,7 @@ export default function App() {
           </div>
 
           {/* Status badge and Fair Play notice */}
-          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/50">
+          <div className="shrink-0 flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/50">
             <span className="flex items-center gap-1.5 font-serif">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
               FIDE Rules Compliant

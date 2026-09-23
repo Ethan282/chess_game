@@ -108,10 +108,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-[min(100%,min(520px,calc(100vh-175px)))] aspect-square flex items-center justify-center p-1 sm:p-2 select-none chess-3d-stage">
+    <div className="relative h-full w-full max-h-full max-w-full aspect-square flex items-center justify-center p-0.5 sm:p-1 select-none chess-3d-stage">
       {/* 3D Board Extruded Box Container */}
       <div
-        className="relative w-full h-full wood-rim-frame rounded-2xl p-2.5 sm:p-4 md:p-5 chess-3d-board-wrapper shadow-2xl"
+        className="relative w-full h-full wood-rim-frame rounded-2xl p-2 sm:p-3 md:p-3.5 chess-3d-board-wrapper shadow-2xl"
         style={{
           transform: getCameraTransform(),
         }}
@@ -133,9 +133,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
         )}
 
         {/* Inset Gold File / Fillet line around board */}
-        <div className="relative w-full h-full rounded-lg p-1 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),inset_0_0_0_1px_rgba(255,215,0,0.22)] bg-[#120a06]/90 flex flex-col">
+        <div className="relative w-full h-full rounded-lg p-0.5 sm:p-1 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),inset_0_0_0_1px_rgba(255,215,0,0.22)] bg-[#120a06]/90 flex flex-col">
           {/* Top Edge Rank Coordinates */}
-          <div className="flex justify-between items-center px-4 py-0.5 text-[10px] md:text-xs font-serif font-bold text-amber-200/50 tracking-widest uppercase">
+          <div className="flex justify-between items-center px-3 sm:px-4 py-0.5 text-[9px] sm:text-[10px] md:text-xs font-serif font-bold text-amber-200/50 tracking-widest uppercase">
             {displayFiles.map((file) => (
               <span key={`top-${file}`} className="w-full text-center">
                 {file}
@@ -144,9 +144,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           </div>
 
           {/* Main 8x8 Board Grid with Left/Right Ranks */}
-          <div className="relative flex-1 flex">
+          <div className="relative flex-1 min-h-0 flex">
             {/* Left Rank Numbers */}
-            <div className="flex flex-col justify-between py-2 text-[10px] md:text-xs font-serif font-bold text-amber-200/50 pr-1.5">
+            <div className="flex flex-col justify-between py-1 text-[9px] sm:text-[10px] md:text-xs font-serif font-bold text-amber-200/50 pr-1 sm:pr-1.5">
               {displayRanks.map((rank) => (
                 <span key={`left-${rank}`} className="h-full flex items-center justify-center">
                   {rank}
@@ -155,7 +155,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             </div>
 
             {/* The 64 Squares Matrix */}
-            <div className="flex-1 grid grid-cols-8 grid-rows-8 rounded shadow-2xl overflow-hidden border border-amber-900/60 bg-stone-900 relative">
+            <div className="flex-1 min-h-0 grid grid-cols-8 grid-rows-8 rounded shadow-2xl overflow-hidden border border-amber-900/60 bg-stone-900 relative">
               {displayRanks.map((rank, rankIdx) => {
                 const row = 8 - parseInt(rank, 10);
 
@@ -305,7 +305,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             )}
 
             {/* Right Rank Numbers */}
-            <div className="flex flex-col justify-between py-2 text-[10px] md:text-xs font-serif font-bold text-amber-200/50 pl-1.5">
+            <div className="flex flex-col justify-between py-1 text-[9px] sm:text-[10px] md:text-xs font-serif font-bold text-amber-200/50 pl-1 sm:pl-1.5">
               {displayRanks.map((rank) => (
                 <span key={`right-${rank}`} className="h-full flex items-center justify-center">
                   {rank}
@@ -315,7 +315,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           </div>
 
           {/* Bottom Edge File Coordinates */}
-          <div className="flex justify-between items-center px-4 py-0.5 text-[10px] md:text-xs font-serif font-bold text-amber-200/50 tracking-widest uppercase">
+          <div className="flex justify-between items-center px-3 sm:px-4 py-0.5 text-[9px] sm:text-[10px] md:text-xs font-serif font-bold text-amber-200/50 tracking-widest uppercase">
             {displayFiles.map((file) => (
               <span key={`bottom-${file}`} className="w-full text-center">
                 {file}
