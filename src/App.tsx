@@ -26,7 +26,8 @@ import { PromotionModal } from './components/PromotionModal';
 import { GameOverModal } from './components/GameOverModal';
 import { PuzzlesModal } from './components/PuzzlesModal';
 import { FenPgnModal } from './components/FenPgnModal';
-import { ShieldCheck, Trophy, Sparkles, Swords, Crown, Eye, EyeOff, Play } from 'lucide-react';
+import { StartScreen } from './components/StartScreen';
+import { ShieldCheck, Trophy, Sparkles, Swords, Crown, Eye, EyeOff, Play, Menu, X, SlidersHorizontal } from 'lucide-react';
 
 const CLOCK_PRESETS: Record<ClockPresetId, ClockSetting> = {
   casual: { id: 'casual', label: 'Casual', sublabel: 'No Timer', initialSeconds: 0, incrementSeconds: 0 },
@@ -49,6 +50,11 @@ export default function App() {
   const [botDifficulty, setBotDifficulty] = useState<BotDifficulty>('intermediate');
   const [clockPreset, setClockPreset] = useState<ClockPresetId>('casual');
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+  const [showStartScreen, setShowStartScreen] = useState<boolean>(true);
+  const [customPlayerNames, setCustomPlayerNames] = useState<{ w: string; b: string }>({
+    w: 'Player 1',
+    b: 'Player 2',
+  });
 
   // Move and interaction state
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -65,6 +71,9 @@ export default function App() {
 
   // Audio mute
   const [isMuted, setIsMuted] = useState(false);
+
+  // Mobile drawer for controls & move history
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Clocks
   const [whiteSeconds, setWhiteSeconds] = useState(0);
@@ -226,18 +235,24 @@ export default function App() {
 
       if (!executedMove) return false;
 
-      // Audio feedback
-      if (executedMove.captured) {
-        soundManager.playCapture();
-      } else if (executedMove.flags.includes('k') || executedMove.flags.includes('q')) {
-        soundManager.playCastle();
-      } else {
-        soundManager.playMove();
-      }
+      // Audio feedback: plays right when the piece touches down on the destination square (matching 280ms glide animation)
+      setTimeout(() => {
+        try {
+          if (executedMove.captured) {
+            soundManager.playCapture();
+          } else if (executedMove.flags.includes('k') || executedMove.flags.includes('q')) {
+            soundManager.playCastle();
+          } else {
+            soundManager.playMove();
+          }
 
-      if (game.isCheck() && !game.isCheckmate()) {
-        soundManager.playCheck();
-      }
+          if (game.isCheck() && !game.isCheckmate()) {
+            setTimeout(() => {
+              soundManager.playCheck();
+            }, 90);
+          }
+        } catch {}
+      }, 200);
 
       // Add clock increment if any
       const preset = CLOCK_PRESETS[clockPreset];
@@ -304,7 +319,15 @@ export default function App() {
               try {
                 const botMove = game.move(botUci);
                 if (botMove) {
-                  soundManager.playMove();
+                  setTimeout(() => {
+                    try {
+                      if (botMove.captured) {
+                        soundManager.playCapture();
+                      } else {
+                        soundManager.playMove();
+                      }
+                    } catch {}
+                  }, 200);
                   setPuzzleMoveIndex(nextIndex + 1);
                   setBoardFen(game.fen());
                   setLastMove({ from: botMove.from, to: botMove.to });
@@ -326,6 +349,16 @@ export default function App() {
 
       // Check for standard game over
       const isEnded = checkGameEnd(game);
+
+      // Play distinct turn sound notification for the player whose turn it is next (after piece settles)
+      if (!isEnded) {
+        const nextTurnColor = game.turn() as 'w' | 'b';
+        setTimeout(() => {
+          try {
+            soundManager.playTurnSound(nextTurnColor);
+          } catch {}
+        }, 360);
+      }
 
       // If AI mode and game continues, trigger AI turn
       if (!isEnded && gameMode === 'ai' && game.turn() !== humanColor) {
@@ -373,6 +406,7 @@ export default function App() {
       setBotDifficulty('intermediate');
     } else if (mode === 'pro') {
       setBotDifficulty('master');
+      setHintMove(null);
     }
   };
 
@@ -400,7 +434,12 @@ export default function App() {
         if (best) {
           const m = game.move({ from: best.from, to: best.to, promotion: 'q' });
           if (m) {
-            soundManager.playMove();
+            setTimeout(() => {
+              try {
+                if (m.captured) soundManager.playCapture();
+                else soundManager.playMove();
+              } catch {}
+            }, 200);
             setBoardFen(game.fen());
             setLastMove({ from: best.from as Square, to: best.to as Square });
             setMoveHistory([
@@ -411,6 +450,96 @@ export default function App() {
                 piece: m.piece,
                 color: m.color as PlayerColor,
                 fen: game.fen(),
+                moveNumber: 1,
+              },
+            ]);
+            setViewMoveIndex(0);
+          }
+        }
+        setIsAiThinking(false);
+      }, 700);
+    }
+  };
+
+  // Launch match from StartScreen / Lobby
+  const handleLaunchFromLobby = (config: {
+    mode: GameMode;
+    skillMode: SkillMode;
+    clockPreset: ClockPresetId;
+    cameraView: CameraView;
+    humanColor: PlayerColor;
+    playerNames: { w: string; b: string };
+    botDifficulty: BotDifficulty;
+  }) => {
+    setGameMode(config.mode);
+    setSkillMode(config.skillMode);
+    setClockPreset(config.clockPreset);
+    setCameraView(config.cameraView);
+    setHumanColor(config.humanColor);
+    setBoardOrientation(config.humanColor);
+    setCustomPlayerNames(config.playerNames);
+    setBotDifficulty(config.botDifficulty);
+    setShowStartScreen(false);
+
+    // Reset game state for clean new match
+    const newG = new Chess();
+    setGame(newG);
+    setBoardFen(newG.fen());
+    setSelectedSquare(null);
+    setValidMoves([]);
+    setLastMove(null);
+    setMoveHistory([]);
+    setViewMoveIndex(-1);
+    setEvalScore(0);
+    setCapturedPieces({ w: [], b: [] });
+    setHintMove(null);
+    setIsAiThinking(false);
+    setPendingPromotion(null);
+    setGameOver(null);
+    setActivePuzzle(null);
+    setIsGameStarted(true);
+
+    const preset = CLOCK_PRESETS[config.clockPreset];
+    setWhiteSeconds(preset.initialSeconds);
+    setBlackSeconds(preset.initialSeconds);
+    if (config.clockPreset !== 'casual') {
+      setIsClockRunning(true);
+    } else {
+      setIsClockRunning(false);
+    }
+
+    try {
+      if (typeof soundManager.playGameStart === 'function') {
+        soundManager.playGameStart();
+      } else {
+        soundManager.playMove();
+      }
+    } catch {}
+
+    // If human selected Black vs AI, AI opens with White's first move
+    if (config.mode === 'ai' && config.humanColor === 'b') {
+      setIsAiThinking(true);
+      setTimeout(() => {
+        const best = findBestMove(newG, config.botDifficulty);
+        if (best) {
+          const m = newG.move({ from: best.from, to: best.to, promotion: 'q' });
+          if (m) {
+            setTimeout(() => {
+              try {
+                if (m.captured) soundManager.playCapture();
+                else soundManager.playMove();
+              } catch {}
+            }, 200);
+            setBoardFen(newG.fen());
+            setLastMove({ from: best.from as Square, to: best.to as Square });
+            setMoveHistory([
+              {
+                san: m.san,
+                from: m.from,
+                to: m.to,
+                piece: m.piece,
+                color: m.color as PlayerColor,
+                fen: newG.fen(),
                 moveNumber: 1,
               },
             ]);
@@ -524,7 +653,12 @@ export default function App() {
         if (best) {
           const m = newG.move({ from: best.from, to: best.to });
           if (m) {
-            soundManager.playMove();
+            setTimeout(() => {
+              try {
+                if (m.captured) soundManager.playCapture();
+                else soundManager.playMove();
+              } catch {}
+            }, 200);
             setBoardFen(newG.fen());
             setLastMove({ from: best.from as Square, to: best.to as Square });
             setMoveHistory([
@@ -576,10 +710,14 @@ export default function App() {
     }
   };
 
-  // Tactical Hint Calculation
+  // Tactical Hint Calculation (instant sub-10ms evaluation, disabled in Pro mode)
   const handleCalculateHint = () => {
-    if (isAiThinking) return;
-    const best = findBestMove(game, 'master');
+    if (isAiThinking || skillMode === 'pro') return;
+    if (hintMove) {
+      setHintMove(null);
+      return;
+    }
+    const best = findBestMove(game, 'club', 2);
     if (best) {
       setHintMove(best);
       soundManager.playCheck();
@@ -727,13 +865,16 @@ export default function App() {
 
   const getPlayerLabel = (color: PlayerColor) => {
     if (gameMode === 'ai') {
-      const modeTag = skillMode === 'beginner' ? 'Beginner 800' : skillMode === 'intermediate' ? 'Club 1500' : 'Master 2200';
-      return color === humanColor ? 'You' : `StockBot (${modeTag})`;
+      const modeTag = skillMode === 'beginner' ? 'Beginner 800' : skillMode === 'intermediate' ? 'Club 1500' : 'Grandmaster 2400+ (Max)';
+      return color === humanColor ? (customPlayerNames.w || 'You') : `StockBot (${modeTag})`;
     }
     if (gameMode === 'puzzle') {
-      return color === humanColor ? 'You (Tactician)' : 'Opponent';
+      return color === humanColor ? (customPlayerNames.w || 'You (Tactician)') : 'Opponent';
     }
-    return color === 'w' ? 'Player 1' : 'Player 2';
+    if (gameMode === 'analysis') {
+      return color === 'w' ? 'White Analysis' : 'Black Analysis';
+    }
+    return color === 'w' ? (customPlayerNames.w || 'Player 1') : (customPlayerNames.b || 'Player 2');
   };
 
   return (
@@ -749,8 +890,17 @@ export default function App() {
         onSelectSkillMode={handleSelectSkillMode}
         isMuted={isMuted}
         onToggleSound={handleToggleSound}
-        onNewGame={handleStartNewGame}
+        onNewGame={() => setShowStartScreen(true)}
         onOpenPuzzles={() => setIsPuzzlesModalOpen(true)}
+        onOpenLobby={() => setShowStartScreen(true)}
+        isMobileMenuOpen={isMobileDrawerOpen}
+        onToggleMobileMenu={() => setIsMobileDrawerOpen((prev) => !prev)}
+        moveCount={moveHistory.length}
+        onUndo={handleUndoMove}
+        canUndo={moveHistory.length > 0}
+        onHint={handleCalculateHint}
+        hasActiveHint={!!hintMove}
+        isAiThinking={isAiThinking}
       />
 
       {/* Main Parlor Canvas: Deep Wooden Desk Backing */}
@@ -778,51 +928,37 @@ export default function App() {
             </div>
           </div>
 
-          {/* Active Skill Mode & Move Assist Banner */}
-          <div
-            className={`mb-1.5 w-full flex items-center justify-between px-3 py-1.5 rounded-xl border text-xs shadow-md transition-all ${
-              skillMode === 'beginner'
-                ? 'bg-emerald-950/70 border-emerald-600/50 text-emerald-200'
-                : skillMode === 'intermediate'
-                ? 'bg-amber-950/70 border-amber-600/50 text-amber-200'
-                : 'bg-purple-950/70 border-purple-600/50 text-purple-200'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {skillMode === 'beginner' && <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-              {skillMode === 'intermediate' && <Swords className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-              {skillMode === 'pro' && <Crown className="w-3.5 h-3.5 text-yellow-400 shrink-0" />}
-              <span className="font-semibold capitalize">
-                {skillMode} Mode
-              </span>
-              <span className="opacity-80 hidden md:inline text-[11px]">
-                {skillMode === 'beginner' && '• Move points illuminated on token click'}
-                {skillMode === 'intermediate' && '• Move points illuminated on token click'}
-                {skillMode === 'pro' && '• Blind vision: Move points hidden'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {!isGameStarted ? (
-                <button
-                  onClick={() => handleStartMatch(humanColor)}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 animate-pulse"
-                >
-                  <Play className="w-3 h-3 fill-stone-950" />
-                  <span>Start Match</span>
-                </button>
-              ) : skillMode === 'pro' ? (
-                <span className="flex items-center gap-1 text-[10px] font-mono-code font-bold text-purple-300 bg-purple-900/60 border border-purple-700/60 px-2 py-0.5 rounded-full">
-                  <EyeOff className="w-3 h-3 text-purple-300" />
-                  Blind Vision
+
+
+          {/* Dynamic Last Move Announcement Pill (Hidden in Pro mode) */}
+          {skillMode !== 'pro' && lastMove && moveHistory.length > 0 && (
+            <div
+              className={`mb-1.5 w-full px-3 py-1 rounded-full text-xs font-medium flex items-center justify-between gap-3 shadow-md transition-all border animate-in fade-in duration-300 ${
+                gameMode === 'ai' && moveHistory[moveHistory.length - 1].color !== humanColor
+                  ? 'bg-gradient-to-r from-amber-950/90 via-[#2f1c0f]/95 to-amber-950/90 border-amber-500/70 text-amber-200'
+                  : 'bg-[#18100a]/90 border-amber-950/60 text-amber-200/80'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                <span className="font-semibold text-amber-100">
+                  {getPlayerLabel(moveHistory[moveHistory.length - 1].color)}:
                 </span>
-              ) : (
-                <span className="flex items-center gap-1 text-[10px] font-mono-code font-bold text-emerald-300 bg-emerald-900/60 border border-emerald-700/60 px-2 py-0.5 rounded-full">
-                  <Eye className="w-3 h-3 text-emerald-300" />
-                  Move Points ON
+                <span className="font-mono-code font-bold text-amber-300 tracking-wide">
+                  {moveHistory[moveHistory.length - 1].san}
                 </span>
-              )}
+              </div>
+
+              <div className="flex items-center gap-1 text-[11px] font-mono-code text-amber-300/80 bg-black/40 px-2 py-0.5 rounded-full border border-amber-900/40">
+                <span>{moveHistory[moveHistory.length - 1].from.toUpperCase()}</span>
+                <span>→</span>
+                <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
+                {moveHistory[moveHistory.length - 1].captured && (
+                  <span className="text-red-400 font-bold ml-1">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Active AI Thinking Indicator Banner */}
           {isAiThinking && (
@@ -862,12 +998,13 @@ export default function App() {
               validMoves={validMoves}
               lastMove={lastMove}
               inCheckSquare={inCheckSquare}
-              hintMove={hintMove}
+              hintMove={skillMode === 'pro' ? null : hintMove}
               cameraView={cameraView}
               onSquareClick={handleSquareClick}
               onPieceDrop={handlePieceDrop}
               disabled={isAiThinking}
               showMovePoints={skillMode !== 'pro'}
+              showLastMoveHighlight={skillMode !== 'pro'}
               invalidSquare={invalidSquare}
               isGameStarted={isGameStarted}
             />
@@ -895,48 +1032,29 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right Sidebar: Game Controls & Algebraic Move History */}
-        <div className="w-full xl:w-[330px] flex flex-col gap-3 self-stretch justify-start shrink-0">
+        {/* Right Sidebar: Desktop View (hidden on mobile/tablet) */}
+        <aside className="hidden xl:flex w-[330px] flex-col gap-3 self-stretch justify-start shrink-0">
           {/* Controls Panel */}
           <GameControls
             mode={gameMode}
             skillMode={skillMode}
-            onChangeSkillMode={handleSelectSkillMode}
             cameraView={cameraView}
             onChangeCamera={setCameraView}
             onFlipBoard={handleFlipBoard}
             onUndo={handleUndoMove}
             onHint={handleCalculateHint}
+            hasActiveHint={!!hintMove}
             onOpenFenPgn={() => setIsFenPgnModalOpen(true)}
             onResign={handleResign}
             onOfferDraw={handleOfferDraw}
             canUndo={moveHistory.length > 0}
-            botDifficulty={botDifficulty}
-            onChangeDifficulty={(diff) => {
-              setBotDifficulty(diff);
-              if (diff === 'novice') setSkillMode('beginner');
-              else if (diff === 'intermediate' || diff === 'club') setSkillMode('intermediate');
-              else if (diff === 'master') setSkillMode('pro');
-            }}
-            clockPreset={clockPreset}
-            onChangeClock={(preset) => {
-              setClockPreset(preset);
-              const p = CLOCK_PRESETS[preset];
-              setWhiteSeconds(p.initialSeconds);
-              setBlackSeconds(p.initialSeconds);
-            }}
             isAiThinking={isAiThinking}
-            isGameStarted={isGameStarted}
-            onStartMatch={handleStartMatch}
-            humanColor={humanColor}
-            onChangeHumanColor={(c) => {
-              setHumanColor(c);
-              setBoardOrientation(c);
-            }}
+            clockPreset={clockPreset}
+            onOpenLobby={() => setShowStartScreen(true)}
           />
 
           {/* Move History / Notation Box */}
-          <div className="flex-1 min-h-[260px] max-h-[460px]">
+          <div className="flex-1 min-h-[300px] max-h-[520px]">
             <MoveHistory
               moves={moveHistory}
               currentMoveIndex={viewMoveIndex}
@@ -957,7 +1075,82 @@ export default function App() {
               </span>
             </div>
           </div>
-        </div>
+        </aside>
+
+        {/* Mobile Slide-Over Backdrop */}
+        {isMobileDrawerOpen && (
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 xl:hidden animate-in fade-in duration-200"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+        )}
+
+        {/* Mobile Slide-Over Drawer: Opens from Right */}
+        <aside
+          className={`fixed inset-y-0 right-0 z-50 w-[350px] max-w-[92vw] bg-[#140e0a] border-l border-amber-900/60 shadow-2xl flex flex-col p-3.5 gap-3 overflow-y-auto transform transition-transform duration-300 ease-in-out xl:hidden ${
+            isMobileDrawerOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+          }`}
+        >
+          {/* Header with Close Button */}
+          <div className="flex items-center justify-between pb-2 border-b border-amber-950/60 shrink-0">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-amber-400" />
+              <span className="font-serif font-bold text-sm text-amber-100">Controls & Move History</span>
+            </div>
+            <button
+              onClick={() => setIsMobileDrawerOpen(false)}
+              className="p-1.5 rounded-lg bg-[#21150e] border border-amber-900/60 text-amber-300 hover:text-white hover:bg-amber-950/80 transition-colors"
+              title="Close panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Controls Panel */}
+          <GameControls
+            mode={gameMode}
+            skillMode={skillMode}
+            cameraView={cameraView}
+            onChangeCamera={setCameraView}
+            onFlipBoard={handleFlipBoard}
+            onUndo={handleUndoMove}
+            onHint={handleCalculateHint}
+            hasActiveHint={!!hintMove}
+            onOpenFenPgn={() => setIsFenPgnModalOpen(true)}
+            onResign={handleResign}
+            onOfferDraw={handleOfferDraw}
+            canUndo={moveHistory.length > 0}
+            isAiThinking={isAiThinking}
+            clockPreset={clockPreset}
+            onOpenLobby={() => {
+              setIsMobileDrawerOpen(false);
+              setShowStartScreen(true);
+            }}
+          />
+
+          {/* Move History / Notation Box */}
+          <div className="flex-1 min-h-[260px] max-h-[460px]">
+            <MoveHistory
+              moves={moveHistory}
+              currentMoveIndex={viewMoveIndex}
+              onNavigateMove={handleNavigateMove}
+            />
+          </div>
+
+          {/* Status badge */}
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/50 shrink-0">
+            <span className="flex items-center gap-1.5 font-serif">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
+              FIDE Rules Compliant
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              <span className="font-mono-code text-[11px] font-bold text-amber-300">
+                {getPlayerLabel(game.turn() as PlayerColor)} to move
+              </span>
+            </div>
+          </div>
+        </aside>
       </main>
 
       {/* Promotion Dialog Modal */}
@@ -996,6 +1189,26 @@ export default function App() {
         pgn={game.pgn()}
         onLoadFen={handleLoadFen}
         onLoadPgn={handleLoadPgn}
+      />
+
+      {/* Start Screen / Lobby Modal */}
+      <StartScreen
+        isOpen={showStartScreen}
+        onClose={() => setShowStartScreen(false)}
+        onStartMatch={handleLaunchFromLobby}
+        isGameInProgress={isGameStarted && moveHistory.length > 0}
+        currentMode={gameMode}
+        currentSkillMode={skillMode}
+        currentClockPreset={clockPreset}
+        currentCameraView={cameraView}
+        currentHumanColor={humanColor}
+        initialPlayerNames={customPlayerNames}
+        isMuted={isMuted}
+        onToggleSound={handleToggleSound}
+        onOpenPuzzles={() => {
+          setShowStartScreen(false);
+          setIsPuzzlesModalOpen(true);
+        }}
       />
     </div>
   );

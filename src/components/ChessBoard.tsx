@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Square, PieceSymbol, Color } from 'chess.js';
 import { PlayerColor, CameraView, BestMoveHint } from '../types/chess';
 import { ChessPiece } from './ChessPiece';
@@ -17,6 +17,7 @@ interface ChessBoardProps {
   onPieceDrop: (from: Square, to: Square) => void;
   disabled?: boolean;
   showMovePoints?: boolean;
+  showLastMoveHighlight?: boolean;
   invalidSquare?: Square | null;
   isGameStarted?: boolean;
 }
@@ -38,15 +39,36 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   onPieceDrop,
   disabled = false,
   showMovePoints = true,
+  showLastMoveHighlight = true,
   invalidSquare = null,
   isGameStarted = true,
 }) => {
   const [draggedSquare, setDraggedSquare] = useState<Square | null>(null);
   const dragImageRef = useRef<HTMLDivElement>(null);
+  const [animatingMove, setAnimatingMove] = useState<{ from: Square; to: Square; key: number } | null>(null);
 
   const isFlipped = playerOrientation === 'b';
   const displayRanks = isFlipped ? [...RANKS].reverse() : RANKS;
   const displayFiles = isFlipped ? [...FILES].reverse() : FILES;
+
+  // Track and trigger smooth physical piece movement animation on every lastMove
+  useEffect(() => {
+    if (lastMove && lastMove.from && lastMove.to) {
+      setAnimatingMove({ ...lastMove, key: Date.now() });
+      const timer = setTimeout(() => {
+        setAnimatingMove(null);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [lastMove?.from, lastMove?.to]);
+
+  const getSquareCoords = (square: Square) => {
+    const file = square[0];
+    const rank = square[1];
+    const col = displayFiles.indexOf(file);
+    const row = displayRanks.indexOf(rank);
+    return { col, row };
+  };
 
   // Refined realistic perspective transforms
   const getCameraTransform = () => {
@@ -133,7 +155,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             </div>
 
             {/* The 64 Squares Matrix */}
-            <div className="flex-1 grid grid-cols-8 grid-rows-8 rounded shadow-2xl overflow-hidden border border-amber-900/60 bg-stone-900">
+            <div className="flex-1 grid grid-cols-8 grid-rows-8 rounded shadow-2xl overflow-hidden border border-amber-900/60 bg-stone-900 relative">
               {displayRanks.map((rank, rankIdx) => {
                 const row = 8 - parseInt(rank, 10);
 
@@ -147,11 +169,21 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 
                   const isSelected = selectedSquare === squareName;
                   const isValidTarget = validMoves.includes(squareName);
-                  const isLastMoveSquare =
-                    lastMove && (lastMove.from === squareName || lastMove.to === squareName);
+                  const isLastMoveFrom = showLastMoveHighlight && lastMove && lastMove.from === squareName;
+                  const isLastMoveTo = showLastMoveHighlight && lastMove && lastMove.to === squareName;
                   const isCheckedKingSquare = inCheckSquare === squareName;
                   const isHintSource = hintMove?.from === squareName;
                   const isHintTarget = hintMove?.to === squareName;
+
+                  const isAnimatingPiece = animatingMove && animatingMove.to === squareName;
+                  let animDx = 0;
+                  let animDy = 0;
+                  if (isAnimatingPiece) {
+                    const fromCoords = getSquareCoords(animatingMove.from);
+                    const toCoords = getSquareCoords(animatingMove.to);
+                    animDx = (fromCoords.col - toCoords.col) * 100;
+                    animDy = (fromCoords.row - toCoords.row) * 100;
+                  }
 
                   return (
                     <div
@@ -167,24 +199,29 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                         transformStyle: 'preserve-3d',
                       }}
                     >
-                      {/* Last Move Indicator Highlight */}
-                      {isLastMoveSquare && (
-                        <div className="absolute inset-0 bg-amber-400/25 pointer-events-none mix-blend-overlay" />
+                      {/* Last Move Origin (Departure) Highlight */}
+                      {isLastMoveFrom && (
+                        <div className="absolute inset-0 bg-amber-400/30 ring-1 ring-inset ring-amber-400/50 pointer-events-none z-[1]" />
+                      )}
+
+                      {/* Last Move Destination (Arrival) Highlight */}
+                      {isLastMoveTo && (
+                        <div className="absolute inset-0 bg-amber-500/40 ring-2 ring-inset ring-amber-300/80 shadow-[inset_0_0_14px_rgba(245,158,11,0.4)] pointer-events-none z-[1]" />
                       )}
 
                       {/* Selected Square Highlight */}
                       {isSelected && (
-                        <div className="absolute inset-0 bg-amber-400/40 ring-2 ring-inset ring-amber-300 shadow-[inset_0_0_12px_rgba(245,158,11,0.45)] pointer-events-none" />
+                        <div className="absolute inset-0 bg-amber-400/40 ring-2 ring-inset ring-amber-300 shadow-[inset_0_0_12px_rgba(245,158,11,0.45)] pointer-events-none z-[3]" />
                       )}
 
                       {/* In-Check Ruby Highlight */}
                       {isCheckedKingSquare && (
-                        <div className="absolute inset-0 bg-red-600/50 animate-pulse pointer-events-none ring-2 ring-red-500" />
+                        <div className="absolute inset-0 bg-red-600/50 animate-pulse pointer-events-none ring-2 ring-red-500 z-[3]" />
                       )}
 
                       {/* Tactical Hint Highlight */}
                       {(isHintSource || isHintTarget) && (
-                        <div className="absolute inset-0 border-2 border-emerald-400 bg-emerald-500/20 animate-pulse pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-emerald-400 bg-emerald-500/20 animate-pulse pointer-events-none z-[3]" />
                       )}
 
                       {/* 3D Contact Shadow on the Board Tile */}
@@ -201,15 +238,25 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                         />
                       )}
 
-                      {/* Piece Rendering */}
+                      {/* Piece Rendering with Real Movement Gliding Animation */}
                       {piece && (
                         <div
                           draggable={!disabled && isGameStarted && piece.color === turn}
                           onDragStart={(e) => handleDragStart(e, squareName)}
                           onDragEnd={handleDragEnd}
                           className={`w-full h-full flex items-center justify-center ${
+                            isAnimatingPiece ? 'animate-piece-glide z-30' : 'z-[4]'
+                          } ${
                             piece.color === turn && isGameStarted ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
                           }`}
+                          style={
+                            isAnimatingPiece
+                              ? ({
+                                  '--move-dx': `${animDx}%`,
+                                  '--move-dy': `${animDy}%`,
+                                } as React.CSSProperties)
+                              : undefined
+                          }
                         >
                           <ChessPiece
                             type={piece.type}
@@ -242,6 +289,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                   );
                 });
               })}
+
             </div>
 
             {/* Match Ready Locked Overlay */}
