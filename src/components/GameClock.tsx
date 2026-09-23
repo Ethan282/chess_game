@@ -4,6 +4,7 @@ interface GameClockProps {
   seconds: number;
   isActive: boolean; // True when it's this player's turn to move
   playerName: string;
+  shortName?: string;
   isWhite: boolean;
   isFlagged?: boolean;
   hasTimer?: boolean;
@@ -14,6 +15,7 @@ export const GameClock: React.FC<GameClockProps> = ({
   seconds,
   isActive,
   playerName,
+  shortName,
   isWhite,
   isFlagged = false,
   hasTimer = true,
@@ -70,9 +72,16 @@ export const GameClock: React.FC<GameClockProps> = ({
               isActive ? 'text-amber-100 font-serif' : 'text-amber-200/70'
             }`}
           >
-            {playerName}
+            {shortName ? (
+              <>
+                <span className="sm:hidden">{shortName}</span>
+                <span className="hidden sm:inline">{playerName}</span>
+              </>
+            ) : (
+              playerName
+            )}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <span className="text-[10px] text-amber-200/40 uppercase tracking-wider font-mono-code">
               {isWhite ? 'White' : 'Black'}
             </span>
@@ -89,7 +98,7 @@ export const GameClock: React.FC<GameClockProps> = ({
 
       {/* Clock display or Casual Turn indicator */}
       <div
-        className={`px-2.5 py-1 rounded-lg font-mono-code text-xs sm:text-sm font-bold tracking-wider tabular-nums border transition-all ${
+        className={`hidden sm:block px-2.5 py-1 rounded-lg font-mono-code text-xs sm:text-sm font-bold tracking-wider tabular-nums border transition-all ${
           isCriticalTime
             ? 'bg-red-950/80 text-red-400 border-red-800/80 animate-pulse'
             : isLowTime

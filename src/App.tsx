@@ -914,6 +914,7 @@ export default function App() {
                 seconds={topPlayerColor === 'w' ? whiteSeconds : blackSeconds}
                 isActive={game.turn() === topPlayerColor}
                 playerName={getPlayerLabel(topPlayerColor)}
+                shortName={topPlayerColor === 'w' ? 'Player 1' : 'Player 2'}
                 isWhite={topPlayerColor === 'w'}
                 hasTimer={clockPreset !== 'casual'}
                 isThinking={gameMode === 'ai' && topPlayerColor !== humanColor && isAiThinking}
@@ -1017,6 +1018,7 @@ export default function App() {
                 seconds={bottomPlayerColor === 'w' ? whiteSeconds : blackSeconds}
                 isActive={game.turn() === bottomPlayerColor}
                 playerName={getPlayerLabel(bottomPlayerColor)}
+                shortName={bottomPlayerColor === 'w' ? 'Player 1' : 'Player 2'}
                 isWhite={bottomPlayerColor === 'w'}
                 hasTimer={clockPreset !== 'casual'}
                 isThinking={gameMode === 'ai' && bottomPlayerColor !== humanColor && isAiThinking}
@@ -1033,7 +1035,7 @@ export default function App() {
         </div>
 
         {/* Right Sidebar: Desktop View (hidden on mobile/tablet) */}
-        <aside className="hidden xl:flex flex-1 min-w-[340px] max-w-[460px] flex-col gap-2.5 self-stretch justify-between shrink-0 min-h-0 h-full max-h-full">
+        <aside className="hidden xl:flex flex-1 min-w-[280px] max-w-[360px] flex-col gap-2 self-stretch justify-between shrink-0 min-h-0 h-full max-h-full">
           {/* Controls Panel */}
           <div className="shrink-0">
             <GameControls
@@ -1065,7 +1067,7 @@ export default function App() {
           </div>
 
           {/* Status badge and Fair Play notice */}
-          <div className="shrink-0 flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#17100b]/80 border border-amber-950/40 text-xs text-amber-200/60">
+          <div className="shrink-0 flex items-center justify-between px-3 py-1.5 rounded-lg bg-[#150e09]/80 border border-amber-950/40 text-[11px] text-amber-200/60">
             <span className="flex items-center gap-1.5 font-serif">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
               FIDE Rules Compliant
