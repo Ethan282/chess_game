@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerColor } from '../types/chess';
+import { PlayerColor, CameraView } from '../types/chess';
 
 interface ChessPieceProps {
   type: 'p' | 'n' | 'b' | 'r' | 'q' | 'k';
@@ -7,6 +7,7 @@ interface ChessPieceProps {
   isDragging?: boolean;
   isSelected?: boolean;
   className?: string;
+  cameraView?: CameraView;
 }
 
 export const ChessPiece: React.FC<ChessPieceProps> = ({
@@ -15,69 +16,81 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   isDragging = false,
   isSelected = false,
   className = '',
+  cameraView = '2d-flat',
 }) => {
   const isWhite = color === 'w';
   const pieceId = `${color}-${type}`;
 
+  const getPieceFilter = () => {
+    if (isSelected) {
+      return 'drop-shadow(0 14px 12px rgba(0,0,0,0.75)) drop-shadow(0 0 14px rgba(251, 191, 36, 0.9))';
+    }
+    if (isDragging) {
+      return 'drop-shadow(0 20px 16px rgba(0,0,0,0.85))';
+    }
+    if (cameraView === '3d-angled') {
+      return isWhite
+        ? 'drop-shadow(2px 5px 6px rgba(0,0,0,0.55)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))'
+        : 'drop-shadow(2px 6px 7px rgba(0,0,0,0.95)) drop-shadow(0 1px 3px rgba(245, 158, 11, 0.35))';
+    }
+    return isWhite
+      ? 'drop-shadow(0 4px 5px rgba(0,0,0,0.45)) drop-shadow(0 1px 2px rgba(0,0,0,0.3))'
+      : 'drop-shadow(0 5px 7px rgba(0,0,0,0.85)) drop-shadow(0 1px 2px rgba(245, 158, 11, 0.25))';
+  };
+
   return (
     <div
-      className={`relative w-full h-full flex items-center justify-center select-none transition-all duration-200 pointer-events-none ${
-        isSelected ? 'scale-115 -translate-y-3' : ''
-      } ${isDragging ? 'scale-125 -translate-y-4' : ''} ${className}`}
+      className={`relative w-full h-full flex items-end justify-center select-none transition-all duration-200 pointer-events-none ${
+        isSelected ? 'scale-110 -translate-y-2.5' : ''
+      } ${isDragging ? 'scale-120 -translate-y-3.5' : ''} ${className}`}
       style={{
-        filter: isSelected
-          ? 'drop-shadow(0 14px 12px rgba(0,0,0,0.75)) drop-shadow(0 0 14px rgba(251, 191, 36, 0.9))'
-          : isDragging
-          ? 'drop-shadow(0 20px 16px rgba(0,0,0,0.85))'
-          : isWhite
-          ? 'drop-shadow(0 5px 6px rgba(0,0,0,0.5)) drop-shadow(0 2px 3px rgba(0,0,0,0.35))'
-          : 'drop-shadow(0 5px 7px rgba(0,0,0,0.9)) drop-shadow(0 1px 2px rgba(245, 158, 11, 0.25))',
+        filter: getPieceFilter(),
       }}
     >
       <svg
-        viewBox="0 0 50 56"
-        className="w-[92%] h-[92%] transition-all"
-        style={{
-          transform: 'translateZ(14px)',
-        }}
+        viewBox="4 0 42 55"
+        className="h-full w-auto max-w-[120%] transition-all overflow-visible pointer-events-none"
+        preserveAspectRatio="xMidYMax meet"
       >
         <defs>
           {/* Studio 3D Light - Cylindrical Wood Body Gradient (White Boxwood) */}
           <linearGradient id={`w-cyl-${pieceId}`} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#c7ab82" />
-            <stop offset="16%" stopColor="#f7eee2" />
-            <stop offset="38%" stopColor="#ffffff" />
-            <stop offset="68%" stopColor="#edd8be" />
-            <stop offset="88%" stopColor="#caa97d" />
-            <stop offset="100%" stopColor="#96744c" />
+            <stop offset="0%" stopColor="#ab8d62" />
+            <stop offset="12%" stopColor="#d8be96" />
+            <stop offset="28%" stopColor="#f7efe2" />
+            <stop offset="42%" stopColor="#ffffff" />
+            <stop offset="65%" stopColor="#ebd6ba" />
+            <stop offset="85%" stopColor="#ba9768" />
+            <stop offset="100%" stopColor="#7a572d" />
           </linearGradient>
 
           {/* Studio 3D Light - Spherical Head Gradient (White Boxwood) */}
-          <radialGradient id={`w-sph-${pieceId}`} cx="36%" cy="32%" r="65%" fx="30%" fy="26%">
+          <radialGradient id={`w-sph-${pieceId}`} cx="32%" cy="28%" r="68%" fx="28%" fy="24%">
             <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="28%" stopColor="#faf2e5" />
-            <stop offset="65%" stopColor="#e5d0b1" />
-            <stop offset="88%" stopColor="#bf9f73" />
-            <stop offset="100%" stopColor="#8c6841" />
+            <stop offset="22%" stopColor="#fcf6ec" />
+            <stop offset="55%" stopColor="#e5cdab" />
+            <stop offset="82%" stopColor="#b5905f" />
+            <stop offset="100%" stopColor="#755026" />
           </radialGradient>
 
           {/* Studio 3D Light - Cylindrical Rosewood Body Gradient (Black Pieces) */}
           <linearGradient id={`b-cyl-${pieceId}`} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#1a1410" />
-            <stop offset="18%" stopColor="#5a493e" />
-            <stop offset="36%" stopColor="#786354" />
-            <stop offset="60%" stopColor="#43352c" />
-            <stop offset="84%" stopColor="#221a15" />
-            <stop offset="100%" stopColor="#0e0a08" />
+            <stop offset="0%" stopColor="#120c08" />
+            <stop offset="15%" stopColor="#3d2c20" />
+            <stop offset="32%" stopColor="#664d39" />
+            <stop offset="48%" stopColor="#80624a" />
+            <stop offset="68%" stopColor="#4d3828" />
+            <stop offset="88%" stopColor="#221710" />
+            <stop offset="100%" stopColor="#0a0604" />
           </linearGradient>
 
           {/* Studio 3D Light - Spherical Head Gradient (Black Pieces) */}
-          <radialGradient id={`b-sph-${pieceId}`} cx="35%" cy="30%" r="68%" fx="28%" fy="24%">
-            <stop offset="0%" stopColor="#876f5e" />
-            <stop offset="25%" stopColor="#635144" />
-            <stop offset="60%" stopColor="#352922" />
-            <stop offset="85%" stopColor="#1a130f" />
-            <stop offset="100%" stopColor="#090605" />
+          <radialGradient id={`b-sph-${pieceId}`} cx="32%" cy="28%" r="70%" fx="26%" fy="22%">
+            <stop offset="0%" stopColor="#96775d" />
+            <stop offset="22%" stopColor="#735842" />
+            <stop offset="55%" stopColor="#443224" />
+            <stop offset="80%" stopColor="#20160f" />
+            <stop offset="100%" stopColor="#080503" />
           </radialGradient>
 
           {/* High-Gloss Specular Glint Top-Left */}
@@ -140,17 +153,17 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
           {render3DBase()}
           <g stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" strokeLinecap="round">
             {/* Tapered conical body with cylindrical lighting */}
-            <path d="M 17,38.5 C 18,33 20,27 20,24 L 30,24 C 30,27 32,33 33,38.5 Z" fill={cylFill} />
+            <path d="M 17,38.5 C 18,33 21,28 21,24.5 L 29,24.5 C 29,28 32,33 33,38.5 Z" fill={cylFill} />
             {/* Specular sheen down the lit side of body */}
-            <path d="M 21,37 C 21.5,32 23,27 23,24" stroke={rimShine} strokeWidth="1.4" fill="none" opacity="0.6" />
+            <path d="M 21.5,37 C 22,32 23,28 23,24.5" stroke={rimShine} strokeWidth="1.4" fill="none" opacity="0.65" />
             {/* Double neck collar */}
-            <ellipse cx="25" cy="24" rx="7.5" ry="2.2" fill={cylFill} />
-            <ellipse cx="25" cy="23.5" rx="6.5" ry="1.6" fill={rimShine} opacity="0.5" stroke="none" />
-            <ellipse cx="25" cy="21.5" rx="6.5" ry="1.8" fill={cylFill} />
+            <ellipse cx="25" cy="24.5" rx="7.2" ry="2.1" fill={cylFill} />
+            <ellipse cx="25" cy="24" rx="6.2" ry="1.5" fill={rimShine} opacity="0.5" stroke="none" />
+            <ellipse cx="25" cy="22" rx="6.2" ry="1.7" fill={cylFill} />
             {/* True 3D Spherical Head */}
-            <circle cx="25" cy="14" r="7.5" fill={sphFill} />
+            <circle cx="25" cy="15.5" r="6.2" fill={sphFill} />
             {/* Specular Glint Hotspot */}
-            <ellipse cx="22.5" cy="11.5" rx="2.5" ry="1.8" fill="#ffffff" opacity={isWhite ? '0.85' : '0.45'} stroke="none" />
+            <ellipse cx="23" cy="13.5" rx="2.2" ry="1.6" fill="#ffffff" opacity={isWhite ? '0.85' : '0.45'} stroke="none" />
           </g>
         </g>
       );
@@ -163,20 +176,20 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
             {/* Tower Shaft */}
             <path d="M 16,38.5 L 17.5,21 L 32.5,21 L 34,38.5 Z" fill={cylFill} />
             {/* Vertical Fluted Masonry Shading */}
-            <path d="M 21,37 L 22,21" stroke={rimShine} strokeWidth="1.2" fill="none" opacity="0.5" />
-            <path d="M 28,37 L 28,21" stroke={deepShadow} strokeWidth="1.2" fill="none" opacity="0.4" />
+            <path d="M 21,37 L 22,21" stroke={rimShine} strokeWidth="1.3" fill="none" opacity="0.55" />
+            <path d="M 28,37 L 28,21" stroke={deepShadow} strokeWidth="1.3" fill="none" opacity="0.45" />
             {/* Parapet Molded Rim */}
-            <ellipse cx="25" cy="21" rx="9" ry="2.5" fill={cylFill} />
+            <ellipse cx="25" cy="21" rx="9.5" ry="2.6" fill={cylFill} />
             <path d="M 15,21 C 15,23.5 35,23.5 35,21 L 36,17.5 C 36,15 14,15 14,17.5 Z" fill={cylFill} />
             {/* Battlement Cavity Floor (recessed depth) */}
             <ellipse cx="25" cy="16.5" rx="9.5" ry="2.6" fill={deepShadow} opacity="0.75" />
             {/* 3D Battlements / Crenels with illuminated faces */}
             {/* Left Crenel */}
             <path d="M 14.5,17.5 L 14.5,11.5 L 19,11.5 L 19,16 Z" fill={cylFill} />
-            <path d="M 15.5,12 L 18,12" stroke={rimShine} strokeWidth="1" fill="none" />
+            <path d="M 15.5,12 L 18,12" stroke={rimShine} strokeWidth="1.1" fill="none" />
             {/* Center Crenel */}
             <path d="M 22.5,16.5 L 22.5,11 L 27.5,11 L 27.5,16.5 Z" fill={cylFill} />
-            <path d="M 23.5,11.5 L 26.5,11.5" stroke={rimShine} strokeWidth="1" fill="none" />
+            <path d="M 23.5,11.5 L 26.5,11.5" stroke={rimShine} strokeWidth="1.1" fill="none" />
             {/* Right Crenel */}
             <path d="M 31,16 L 31,11.5 L 35.5,11.5 L 35.5,17.5 Z" fill={cylFill} />
           </g>
@@ -194,12 +207,12 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
               fill={cylFill}
             />
             {/* Mane Creases with Lit Edges */}
-            <path d="M 27,9 C 31,11.5 31,15.5 29,18" stroke={rimShine} strokeWidth="1.3" fill="none" />
-            <path d="M 31.5,14.5 C 34.5,17.5 34,22 31,24" stroke={rimShine} strokeWidth="1.3" fill="none" />
-            <path d="M 33,20 C 36,23 35.5,27.5 32,29.5" stroke={rimShine} strokeWidth="1.3" fill="none" />
+            <path d="M 27,9 C 31,11.5 31,15.5 29,18" stroke={rimShine} strokeWidth="1.4" fill="none" />
+            <path d="M 31.5,14.5 C 34.5,17.5 34,22 31,24" stroke={rimShine} strokeWidth="1.4" fill="none" />
+            <path d="M 33,20 C 36,23 35.5,27.5 32,29.5" stroke={rimShine} strokeWidth="1.4" fill="none" />
             {/* 3D Stallion Ear with Shadowed Core */}
             <path d="M 22.5,6.5 L 25.5,12" stroke={stroke} strokeWidth="1.3" fill={cylFill} />
-            <path d="M 23.5,8 L 24.5,11" stroke={rimShine} strokeWidth="1" />
+            <path d="M 23.5,8 L 24.5,11" stroke={rimShine} strokeWidth="1.1" />
             {/* Brow Ridge & Cheeks */}
             <path d="M 17,13 C 19,13 22,14.5 23,17" stroke={deepShadow} strokeWidth="1.2" fill="none" opacity="0.6" />
             {/* 3D Expressive Amber/Obsidian Eye */}
@@ -220,23 +233,23 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
           {render3DBase()}
           <g stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" strokeLinecap="round">
             {/* Lathe-turned Tapered Stem */}
-            <path d="M 17,38.5 C 18,32 19,27 20,24 L 30,24 C 31,27 32,32 33,38.5 Z" fill={cylFill} />
+            <path d="M 17,38.5 C 18,32 19,26 20,23 L 30,23 C 31,26 32,32 33,38.5 Z" fill={cylFill} />
             {/* Annular Collar */}
-            <ellipse cx="25" cy="24" rx="8" ry="2.4" fill={cylFill} />
-            <ellipse cx="25" cy="23.5" rx="7" ry="1.8" fill={rimShine} opacity="0.5" stroke="none" />
+            <ellipse cx="25" cy="23" rx="8" ry="2.4" fill={cylFill} />
+            <ellipse cx="25" cy="22.5" rx="7" ry="1.8" fill={rimShine} opacity="0.5" stroke="none" />
             {/* 3D Ellipsoidal Mitre Head */}
             <path
-              d="M 18,24 C 15,20 15,14 18,10.5 C 21,7 29,7 32,10.5 C 35,14 35,20 32,24 Z"
+              d="M 18,23 C 15,19 15,13 18,9.5 C 21,6 29,6 32,9.5 C 35,13 35,19 32,23 Z"
               fill={sphFill}
             />
             {/* Deep Angled Carved Mitre Cleft (Shadowed interior) */}
-            <path d="M 23,11.5 L 30,17.5 L 27.5,19.5 L 21.5,13.5 Z" fill={deepShadow} opacity="0.85" stroke="none" />
-            <path d="M 23,11.5 L 30,17.5" stroke={rimShine} strokeWidth="1.2" />
+            <path d="M 23,10.5 L 30,16.5 L 27.5,18.5 L 21.5,12.5 Z" fill={deepShadow} opacity="0.85" stroke="none" />
+            <path d="M 23,10.5 L 30,16.5" stroke={rimShine} strokeWidth="1.3" />
             {/* Mitre Center Rib */}
-            <path d="M 25,18 L 25,24" stroke={deepShadow} strokeWidth="1.2" opacity="0.5" />
+            <path d="M 25,17 L 25,23" stroke={deepShadow} strokeWidth="1.2" opacity="0.5" />
             {/* Finial Cross Ball at Peak */}
-            <circle cx="25" cy="6.5" r="2.4" fill={isWhite ? `url(#w-sph-${id})` : '#f59e0b'} />
-            <circle cx="24.2" cy="5.8" r="0.7" fill="#ffffff" opacity="0.7" stroke="none" />
+            <circle cx="25" cy="5.5" r="2.4" fill={isWhite ? `url(#w-sph-${id})` : '#f59e0b'} />
+            <circle cx="24.2" cy="4.8" r="0.7" fill="#ffffff" opacity="0.7" stroke="none" />
           </g>
         </g>
       );
@@ -247,23 +260,24 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
           {render3DBase()}
           <g stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" strokeLinecap="round">
             {/* Lathe-turned Royal Corset Body */}
-            <path d="M 16,38.5 C 18,32 18,27 17,23 L 33,23 C 32,27 32,32 34,38.5 Z" fill={cylFill} />
+            <path d="M 16,38.5 C 18,32 18,26 17,22 L 33,22 C 32,26 32,32 34,38.5 Z" fill={cylFill} />
             {/* Waist Belt with Gold Accent */}
-            <ellipse cx="25" cy="30" rx="9" ry="2.2" fill={deepShadow} opacity="0.3" stroke="none" />
-            <path d="M 17,30 C 21,31.5 29,31.5 33,30" stroke={rimShine} strokeWidth="1.3" fill="none" opacity="0.7" />
+            <ellipse cx="25" cy="29" rx="9" ry="2.2" fill={deepShadow} opacity="0.3" stroke="none" />
+            <path d="M 17,29 C 21,30.5 29,30.5 33,29" stroke={rimShine} strokeWidth="1.4" fill="none" opacity="0.75" />
             {/* Coronet Ring Rim */}
-            <ellipse cx="25" cy="23" rx="10" ry="2.6" fill={cylFill} />
-            <ellipse cx="25" cy="22.5" rx="9" ry="2" fill={rimShine} opacity="0.4" stroke="none" />
+            <ellipse cx="25" cy="22" rx="10" ry="2.6" fill={cylFill} />
+            <ellipse cx="25" cy="21.5" rx="9" ry="2" fill={rimShine} opacity="0.45" stroke="none" />
             {/* Flaring Royal Crown Body */}
-            <path d="M 14,23 L 11,14 L 17,19 L 25,11 L 33,19 L 39,14 L 36,23 Z" fill={cylFill} />
+            <path d="M 14,22 L 10.5,12 L 17,17 L 25,7.5 L 33,17 L 39.5,12 L 36,22 Z" fill={cylFill} />
             {/* Crown Point Pearl Jewels (3D spherical pearls) */}
-            <circle cx="11" cy="13" r="2" fill={isWhite ? '#ffffff' : '#f59e0b'} />
-            <circle cx="17" cy="18" r="1.8" fill={isWhite ? '#ffffff' : '#f59e0b'} />
-            <circle cx="25" cy="10" r="2.4" fill={isWhite ? '#ffffff' : '#f59e0b'} />
-            <circle cx="33" cy="18" r="1.8" fill={isWhite ? '#ffffff' : '#f59e0b'} />
-            <circle cx="39" cy="13" r="2" fill={isWhite ? '#ffffff' : '#f59e0b'} />
+            <circle cx="10.5" cy="11.5" r="2.1" fill={isWhite ? '#ffffff' : '#f59e0b'} />
+            <circle cx="17" cy="16.5" r="1.9" fill={isWhite ? '#ffffff' : '#f59e0b'} />
+            <circle cx="25" cy="6.5" r="2.6" fill={isWhite ? '#ffffff' : '#f59e0b'} />
+            <circle cx="33" cy="16.5" r="1.9" fill={isWhite ? '#ffffff' : '#f59e0b'} />
+            <circle cx="39.5" cy="11.5" r="2.1" fill={isWhite ? '#ffffff' : '#f59e0b'} />
             {/* Pearl Glints */}
-            <circle cx="24.3" cy="9.2" r="0.7" fill="#ffffff" stroke="none" />
+            <circle cx="24.2" cy="5.5" r="0.8" fill="#ffffff" stroke="none" />
+            <circle cx="10" cy="10.8" r="0.6" fill="#ffffff" stroke="none" />
           </g>
         </g>
       );
@@ -274,29 +288,29 @@ function render3DStauntonPiece(type: string, isWhite: boolean, id: string) {
           {render3DBase()}
           <g stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" strokeLinecap="round">
             {/* Sovereign Body Stem */}
-            <path d="M 16,38.5 C 18,32 18,27 16.5,23 L 33.5,23 C 32,27 32,32 34,38.5 Z" fill={cylFill} />
+            <path d="M 16,38.5 C 18,32 18,26 16.5,22 L 33.5,22 C 32,26 32,32 34,38.5 Z" fill={cylFill} />
             {/* Royal Belt */}
-            <path d="M 17,31 C 21,32.5 29,32.5 33,31" stroke={rimShine} strokeWidth="1.3" fill="none" opacity="0.6" />
+            <path d="M 17,30 C 21,31.5 29,31.5 33,30" stroke={rimShine} strokeWidth="1.4" fill="none" opacity="0.65" />
             {/* Coronet Ring */}
-            <ellipse cx="25" cy="23" rx="10" ry="2.6" fill={cylFill} />
+            <ellipse cx="25" cy="22" rx="10" ry="2.6" fill={cylFill} />
             {/* Imperial Crown Arched Cap */}
             <path
-              d="M 15,23 C 14,18 17,14 25,14 C 33,14 36,18 35,23 Z"
+              d="M 15,22 C 14,16.5 17,12.5 25,12.5 C 33,12.5 36,16.5 35,22 Z"
               fill={sphFill}
             />
             {/* Crown Rib Highlights */}
-            <path d="M 25,14 L 25,23" stroke={rimShine} strokeWidth="1.4" opacity="0.6" />
-            <path d="M 17,21 C 21,22.5 29,22.5 33,21" stroke={rimShine} strokeWidth="1.2" fill="none" opacity="0.5" />
-            {/* Sovereign Upright 3D Cross on Peak */}
-            <g stroke={stroke} strokeWidth="1.6" fill={isWhite ? '#ffffff' : '#f59e0b'}>
+            <path d="M 25,12.5 L 25,22" stroke={rimShine} strokeWidth="1.5" opacity="0.65" />
+            <path d="M 17,20 C 21,21.5 29,21.5 33,20" stroke={rimShine} strokeWidth="1.3" fill="none" opacity="0.55" />
+            {/* Sovereign Upright 3D Latin Cross on Peak */}
+            <g stroke={stroke} strokeWidth="1.5" fill={isWhite ? '#ffffff' : '#f59e0b'}>
               {/* Vertical Cross Stave */}
-              <path d="M 23.5,14 L 23.5,4.5 L 26.5,4.5 L 26.5,14 Z" />
+              <path d="M 23.5,12.5 L 23.5,2.5 L 26.5,2.5 L 26.5,12.5 Z" />
               {/* Horizontal Crossbeam */}
-              <path d="M 20.5,7.5 L 29.5,7.5 L 29.5,10.5 L 20.5,10.5 Z" />
+              <path d="M 20.5,5.5 L 29.5,5.5 L 29.5,8.5 L 20.5,8.5 Z" />
             </g>
             {/* Cross Glint */}
-            <rect x="24" y="5" width="1" height="5" fill="#ffffff" opacity="0.8" stroke="none" />
-            <rect x="21" y="8" width="8" height="1" fill="#ffffff" opacity="0.8" stroke="none" />
+            <rect x="24" y="3" width="1" height="5" fill="#ffffff" opacity="0.85" stroke="none" />
+            <rect x="21" y="6" width="8" height="1" fill="#ffffff" opacity="0.85" stroke="none" />
           </g>
         </g>
       );

@@ -70,17 +70,95 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     return { col, row };
   };
 
-  // Refined realistic perspective transforms
+  // Camera view transform for the board plinth
   const getCameraTransform = () => {
     switch (cameraView) {
       case '3d-angled':
-        return 'rotateX(13deg) scale(0.99) translateY(4px)';
+        return 'rotateX(22deg) scale(0.97) translateY(-6px)';
       case '3d-front':
-        return 'rotateX(7deg) scale(0.99) translateY(2px)';
+        return 'rotateX(12deg) scale(0.98) translateY(-2px)';
       case '2d-flat':
       default:
         return 'rotateX(0deg) scale(1) translateY(0px)';
     }
+  };
+
+  const getBoardFrameClass = () => {
+    switch (cameraView) {
+      case '3d-angled':
+        return 'wood-rim-frame wood-rim-frame-3d-angled';
+      case '3d-front':
+        return 'wood-rim-frame wood-rim-frame-3d-front';
+      case '2d-flat':
+      default:
+        return 'wood-rim-frame wood-rim-frame-2d';
+    }
+  };
+
+  // Authentic Staunton Piece Height Proportions for 3D & 2D views
+  const getPieceHeight = (type: PieceSymbol, view: CameraView): string => {
+    if (view === '3d-angled') {
+      switch (type) {
+        case 'k':
+          return '154%';
+        case 'q':
+          return '145%';
+        case 'b':
+          return '135%';
+        case 'n':
+          return '126%';
+        case 'r':
+          return '118%';
+        case 'p':
+        default:
+          return '102%';
+      }
+    }
+    if (view === '3d-front') {
+      switch (type) {
+        case 'k':
+          return '138%';
+        case 'q':
+          return '130%';
+        case 'b':
+          return '122%';
+        case 'n':
+          return '115%';
+        case 'r':
+          return '108%';
+        case 'p':
+        default:
+          return '96%';
+      }
+    }
+    return '95%';
+  };
+
+  // Billboarding: pieces stand upright perpendicular to the 3D board
+  const getPieceTransform = (isAnimatingPiece: boolean, animDx: number, animDy: number) => {
+    let baseTransform = '';
+    if (cameraView === '3d-angled') {
+      baseTransform = 'rotateX(-22deg) translateZ(8px)';
+    } else if (cameraView === '3d-front') {
+      baseTransform = 'rotateX(-12deg) translateZ(4px)';
+    }
+
+    if (isAnimatingPiece) {
+      return {
+        '--move-dx': `${animDx}%`,
+        '--move-dy': `${animDy}%`,
+        transform: baseTransform || undefined,
+        transformOrigin: 'bottom center',
+      } as React.CSSProperties;
+    }
+
+    return baseTransform
+      ? ({
+          transform: baseTransform,
+          transformOrigin: 'bottom center',
+          transition: 'transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1)',
+        } as React.CSSProperties)
+      : undefined;
   };
 
   const handleDragStart = (e: React.DragEvent, square: Square) => {
@@ -109,9 +187,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 
   return (
     <div className="relative h-full w-full max-h-full max-w-full aspect-square flex items-center justify-center p-2 sm:p-3 select-none chess-3d-stage">
-      {/* 3D Board Extruded Box Container */}
+      {/* 3D Board Solid Wood Plinth */}
       <div
-        className="relative w-full h-full wood-rim-frame rounded-2xl p-2 sm:p-3 md:p-3.5 chess-3d-board-wrapper shadow-2xl"
+        className={`relative w-full h-full rounded-2xl p-2 sm:p-3 md:p-3.5 chess-3d-board-wrapper shadow-2xl ${getBoardFrameClass()}`}
         style={{
           transform: getCameraTransform(),
         }}
@@ -121,16 +199,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
         <div className="absolute top-2 right-2 w-4 h-4 brass-corner rounded-tr-sm opacity-90 border-l border-b border-amber-950/40" />
         <div className="absolute bottom-2 left-2 w-4 h-4 brass-corner rounded-bl-sm opacity-90 border-r border-t border-amber-950/40" />
         <div className="absolute bottom-2 right-2 w-4 h-4 brass-corner rounded-br-sm opacity-90 border-l border-t border-amber-950/40" />
-
-        {/* 3D Board Slabs (subtle extrusions visible in 3D tilt) */}
-        {cameraView !== '2d-flat' && (
-          <>
-            <div className="absolute left-0 right-0 -bottom-[16px] wood-slab-front rounded-b-lg pointer-events-none" />
-            <div className="absolute top-0 bottom-0 -right-[16px] wood-slab-right rounded-r-lg pointer-events-none" />
-            <div className="absolute top-0 bottom-0 -left-[16px] wood-slab-left rounded-l-lg pointer-events-none" />
-            <div className="absolute left-0 right-0 -top-[16px] wood-slab-back rounded-t-lg pointer-events-none" />
-          </>
-        )}
 
         {/* Inset Gold File / Fillet line around board */}
         <div className="relative w-full h-full rounded-lg p-0.5 sm:p-1 shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),inset_0_0_0_1px_rgba(255,215,0,0.22)] bg-[#120a06]/90 flex flex-col">
@@ -144,7 +212,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           </div>
 
           {/* Main 8x8 Board Grid with Left/Right Ranks */}
-          <div className="relative flex-1 min-h-0 flex">
+          <div className="relative flex-1 min-h-0 flex" style={{ transformStyle: 'preserve-3d' }}>
             {/* Left Rank Numbers */}
             <div className="flex flex-col justify-between py-1 text-[9px] sm:text-[10px] md:text-xs font-serif font-bold text-amber-200/50 pr-1 sm:pr-1.5">
               {displayRanks.map((rank) => (
@@ -155,7 +223,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             </div>
 
             {/* The 64 Squares Matrix */}
-            <div className="flex-1 min-h-0 grid grid-cols-8 grid-rows-8 rounded shadow-2xl overflow-hidden border border-amber-900/60 bg-stone-900 relative">
+            <div 
+              className="flex-1 min-h-0 grid grid-cols-8 grid-rows-8 rounded shadow-2xl border border-amber-900/60 bg-stone-900 relative"
+              style={{ transformStyle: 'preserve-3d' }}
+            >
               {displayRanks.map((rank, rankIdx) => {
                 const row = 8 - parseInt(rank, 10);
 
@@ -192,11 +263,12 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                       onClick={() => !disabled && onSquareClick(squareName)}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, squareName)}
-                      className={`relative flex items-center justify-center cursor-pointer transition-colors duration-150 ${
+                      className={`relative flex items-end justify-center cursor-pointer transition-colors duration-150 ${
                         isLightSquare ? 'wood-maple-light text-stone-900' : 'wood-walnut-dark text-amber-100'
                       } ${invalidSquare === squareName ? 'animate-invalid-shake ring-2 ring-red-500' : ''}`}
                       style={{
                         transformStyle: 'preserve-3d',
+                        zIndex: isSelected ? 99 : (rankIdx + 1) * 10,
                       }}
                     >
                       {/* Last Move Origin (Departure) Highlight */}
@@ -227,42 +299,43 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                       {/* 3D Contact Shadow on the Board Tile */}
                       {piece && (
                         <div
-                          className={`absolute bottom-0.5 w-[70%] h-[20%] rounded-[50%] transition-all duration-200 pointer-events-none ${
+                          className={`absolute bottom-0.5 sm:bottom-1 w-[72%] h-[20%] rounded-[50%] transition-all duration-200 pointer-events-none z-[1] ${
                             isSelected
-                              ? 'bg-black/35 blur-[4px] scale-125 translate-y-1'
-                              : 'bg-black/65 blur-[2px] -rotate-3'
+                              ? 'bg-black/35 blur-[4px] scale-110'
+                              : 'bg-black/70 blur-[2px]'
                           }`}
                           style={{
-                            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.7)',
+                            boxShadow: cameraView === '3d-angled' 
+                              ? '0 3px 6px rgba(0, 0, 0, 0.7), 2px 4px 8px rgba(0, 0, 0, 0.5)' 
+                              : '0 2px 4px rgba(0, 0, 0, 0.6)',
+                            transform: cameraView === '3d-angled' ? 'scaleY(0.6) rotate(-2deg)' : undefined,
                           }}
                         />
                       )}
 
-                      {/* Piece Rendering with Real Movement Gliding Animation */}
+                      {/* Piece Rendering with Real Movement Gliding Animation & 3D Upright Billboarding */}
                       {piece && (
                         <div
                           draggable={!disabled && isGameStarted && piece.color === turn}
                           onDragStart={(e) => handleDragStart(e, squareName)}
                           onDragEnd={handleDragEnd}
-                          className={`w-full h-full flex items-center justify-center ${
-                            isAnimatingPiece ? 'animate-piece-glide z-30' : 'z-[4]'
+                          className={`absolute inset-x-0 bottom-1 sm:bottom-1.5 flex items-end justify-center pointer-events-auto select-none ${
+                            isAnimatingPiece ? 'animate-piece-glide z-[90]' : 'z-[5]'
                           } ${
                             piece.color === turn && isGameStarted ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
                           }`}
-                          style={
-                            isAnimatingPiece
-                              ? ({
-                                  '--move-dx': `${animDx}%`,
-                                  '--move-dy': `${animDy}%`,
-                                } as React.CSSProperties)
-                              : undefined
-                          }
+                          style={{
+                            height: getPieceHeight(piece.type, cameraView),
+                            transformOrigin: 'bottom center',
+                            ...getPieceTransform(!!isAnimatingPiece, animDx, animDy),
+                          }}
                         >
                           <ChessPiece
                             type={piece.type}
                             color={piece.color}
                             isSelected={isSelected}
                             isDragging={draggedSquare === squareName}
+                            cameraView={cameraView}
                           />
                         </div>
                       )}
@@ -294,7 +367,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 
             {/* Match Ready Locked Overlay */}
             {!isGameStarted && (
-              <div className="absolute inset-0 ml-4 mr-4 my-0 bg-black/40 backdrop-blur-[1px] rounded flex flex-col items-center justify-center pointer-events-none z-20">
+              <div className="absolute inset-0 ml-4 mr-4 my-0 bg-black/40 backdrop-blur-[1px] rounded flex flex-col items-center justify-center pointer-events-none z-[95]">
                 <div className="px-3.5 py-1.5 rounded-xl bg-[#1b1009]/95 border border-amber-500/70 shadow-2xl text-center flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                   <span className="font-serif font-bold text-amber-200 text-[11px] tracking-wide">

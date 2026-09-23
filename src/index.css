@@ -31,15 +31,15 @@
 
 /* 3D Chess Board Stage & Perspective */
 .chess-3d-stage {
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
+  perspective: 1100px;
+  perspective-origin: 50% 80%;
   transform-style: preserve-3d;
 }
 
 .chess-3d-board-wrapper {
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
-  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.6s ease;
+  will-change: transform, box-shadow;
 }
 
 /* Procedural Rich Wood Textures */
@@ -81,43 +81,44 @@
       rgba(255, 255, 255, 0.03) 8px,
       rgba(0, 0, 0, 0.35) 16px
     );
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.6s ease;
+}
+
+/* Authentic Solid 3D Wood Plinth (Multi-stop depth - never detaches or breaks) */
+.wood-rim-frame-3d-angled {
   box-shadow: 
-    0 35px 60px -15px rgba(0, 0, 0, 0.85),
-    0 15px 25px -10px rgba(0, 0, 0, 0.7),
-    inset 0 1px 2px rgba(255, 215, 140, 0.25),
+    0 1px 0 #3e2215,
+    0 3px 0 #361b0f,
+    0 6px 0 #2e150a,
+    0 9px 0 #250f06,
+    0 13px 0 #1c0a04,
+    0 17px 0 #130602,
+    0 22px 0 #0b0301,
+    0 26px 8px rgba(0, 0, 0, 0.55),
+    0 38px 55px -10px rgba(0, 0, 0, 0.9),
+    inset 0 1.5px 2px rgba(255, 215, 140, 0.35),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.wood-rim-frame-3d-front {
+  box-shadow: 
+    0 1px 0 #3e2215,
+    0 3px 0 #351a0e,
+    0 6px 0 #2a1309,
+    0 10px 0 #1e0b04,
+    0 14px 0 #120502,
+    0 18px 6px rgba(0, 0, 0, 0.45),
+    0 28px 40px -8px rgba(0, 0, 0, 0.85),
+    inset 0 1px 2px rgba(255, 215, 140, 0.3),
     inset 0 -2px 6px rgba(0, 0, 0, 0.8);
 }
 
-/* 3D Slab Extrusions for the Wooden Board Thickness */
-.wood-slab-front {
-  transform: rotateX(-90deg) translateZ(14px);
-  transform-origin: bottom;
-  height: 28px;
-  background: linear-gradient(180deg, #3a1e12 0%, #170b06 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 200, 140, 0.3), inset 0 -2px 6px rgba(0, 0, 0, 0.9);
-}
-
-.wood-slab-right {
-  transform: rotateY(90deg) translateZ(14px);
-  transform-origin: right;
-  width: 28px;
-  background: linear-gradient(90deg, #2b150c 0%, #120804 100%);
-  box-shadow: inset 1px 0 0 rgba(255, 200, 140, 0.2), inset -2px 0 6px rgba(0, 0, 0, 0.9);
-}
-
-.wood-slab-left {
-  transform: rotateY(-90deg) translateZ(14px);
-  transform-origin: left;
-  width: 28px;
-  background: linear-gradient(270deg, #442416 0%, #1e0d07 100%);
-  box-shadow: inset -1px 0 0 rgba(255, 200, 140, 0.25), inset 2px 0 6px rgba(0, 0, 0, 0.9);
-}
-
-.wood-slab-back {
-  transform: rotateX(90deg) translateZ(14px);
-  transform-origin: top;
-  height: 28px;
-  background: linear-gradient(0deg, #211009 0%, #100603 100%);
+.wood-rim-frame-2d {
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.85),
+    0 10px 20px -5px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 215, 140, 0.25),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.8);
 }
 
 /* Brass Corner Accents */
