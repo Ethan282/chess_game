@@ -929,35 +929,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Dynamic Last Move Announcement Pill (Hidden in Pro mode) */}
-          {skillMode !== 'pro' && lastMove && moveHistory.length > 0 && (
-            <div
-              className={`shrink-0 my-0.5 w-full px-3 py-0.5 rounded-full text-xs font-medium flex items-center justify-between gap-2 shadow-md transition-all border animate-in fade-in duration-300 ${
-                gameMode === 'ai' && moveHistory[moveHistory.length - 1].color !== humanColor
-                  ? 'bg-gradient-to-r from-amber-950/90 via-[#2f1c0f]/95 to-amber-950/90 border-amber-500/70 text-amber-200'
-                  : 'bg-[#18100a]/90 border-amber-950/60 text-amber-200/80'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 truncate">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
-                <span className="font-semibold text-amber-100 shrink-0">
-                  {getPlayerLabel(moveHistory[moveHistory.length - 1].color)}:
-                </span>
-                <span className="font-mono-code font-bold text-amber-300 tracking-wide shrink-0">
-                  {moveHistory[moveHistory.length - 1].san}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-1 text-[11px] font-mono-code text-amber-300/80 bg-black/40 px-2 py-0.5 rounded-full border border-amber-900/40 shrink-0">
-                <span>{moveHistory[moveHistory.length - 1].from.toUpperCase()}</span>
-                <span>→</span>
-                <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
-                {moveHistory[moveHistory.length - 1].captured && (
-                  <span className="text-red-400 font-bold ml-1">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Active AI Thinking Indicator Banner */}
           {isAiThinking && (
@@ -1057,6 +1028,35 @@ export default function App() {
             />
           </div>
 
+          {/* Last Move Announcement */}
+          {skillMode !== 'pro' && lastMove && moveHistory.length > 0 && (
+            <div
+              className={`shrink-0 px-3 py-1 rounded-lg text-[11px] font-medium flex items-center justify-between gap-2 border transition-all ${
+                gameMode === 'ai' && moveHistory[moveHistory.length - 1].color !== humanColor
+                  ? 'bg-gradient-to-r from-amber-950/80 to-[#2f1c0f]/90 border-amber-500/50 text-amber-200'
+                  : 'bg-[#18100a]/80 border-amber-950/50 text-amber-200/70'
+              }`}
+            >
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+                <span className="font-semibold text-amber-100 shrink-0">
+                  {getPlayerLabel(moveHistory[moveHistory.length - 1].color)}:
+                </span>
+                <span className="font-mono-code font-bold text-amber-300 tracking-wide shrink-0">
+                  {moveHistory[moveHistory.length - 1].san}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-[10px] font-mono-code text-amber-300/70 bg-black/30 px-1.5 py-0.5 rounded border border-amber-900/30 shrink-0">
+                <span>{moveHistory[moveHistory.length - 1].from.toUpperCase()}</span>
+                <span>→</span>
+                <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
+                {moveHistory[moveHistory.length - 1].captured && (
+                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Move History / Notation Box */}
           <div className="flex-1 min-h-0 overflow-hidden">
             <MoveHistory
@@ -1131,6 +1131,35 @@ export default function App() {
               setShowStartScreen(true);
             }}
           />
+
+          {/* Last Move Announcement */}
+          {skillMode !== 'pro' && lastMove && moveHistory.length > 0 && (
+            <div
+              className={`shrink-0 px-3 py-1 rounded-lg text-[11px] font-medium flex items-center justify-between gap-2 border transition-all ${
+                gameMode === 'ai' && moveHistory[moveHistory.length - 1].color !== humanColor
+                  ? 'bg-gradient-to-r from-amber-950/80 to-[#2f1c0f]/90 border-amber-500/50 text-amber-200'
+                  : 'bg-[#18100a]/80 border-amber-950/50 text-amber-200/70'
+              }`}
+            >
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+                <span className="font-semibold text-amber-100 shrink-0">
+                  {getPlayerLabel(moveHistory[moveHistory.length - 1].color)}:
+                </span>
+                <span className="font-mono-code font-bold text-amber-300 tracking-wide shrink-0">
+                  {moveHistory[moveHistory.length - 1].san}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-[10px] font-mono-code text-amber-300/70 bg-black/30 px-1.5 py-0.5 rounded border border-amber-900/30 shrink-0">
+                <span>{moveHistory[moveHistory.length - 1].from.toUpperCase()}</span>
+                <span>→</span>
+                <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
+                {moveHistory[moveHistory.length - 1].captured && (
+                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Move History / Notation Box */}
           <div className="flex-1 min-h-[260px] max-h-[460px]">

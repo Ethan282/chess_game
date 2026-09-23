@@ -113,49 +113,6 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             <span>New Game</span>
           </button>
 
-          {onUndo && (
-            <button
-              onClick={onUndo}
-              disabled={!canUndo}
-              title="Undo last move"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#21150e] border border-amber-900/60 hover:border-amber-600/70 hover:bg-[#301d14] disabled:opacity-40 disabled:pointer-events-none text-amber-200 text-xs font-semibold shadow-sm transition-all active:scale-95"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-              <span>Undo</span>
-            </button>
-          )}
-
-          {onHint && skillMode !== 'pro' && (
-            <button
-              onClick={onHint}
-              disabled={isAiThinking}
-              title={hasActiveHint ? 'Clear tactical hint' : 'Get instant tactical hint'}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs font-semibold shadow-sm transition-all active:scale-95 ${
-                hasActiveHint
-                  ? 'bg-emerald-950/90 border-emerald-500 text-emerald-300 ring-1 ring-emerald-400/50'
-                  : 'bg-[#21150e] border-amber-900/60 hover:border-amber-600/70 hover:bg-[#301d14] text-amber-200'
-              } disabled:opacity-40 disabled:pointer-events-none`}
-            >
-              <Sparkles className={`w-3.5 h-3.5 ${hasActiveHint ? 'text-emerald-400 animate-spin' : 'text-amber-400'}`} style={hasActiveHint ? { animationDuration: '3s' } : undefined} />
-              <span>{hasActiveHint ? 'Active' : 'Hint'}</span>
-            </button>
-          )}
-
-          {onToggleMobileMenu && (
-            <button
-              onClick={onToggleMobileMenu}
-              title={isMobileMenuOpen ? 'Close panel' : 'Open Controls & Move History'}
-              aria-label="Toggle game panel"
-              className="flex items-center justify-center p-2 rounded-lg bg-[#21150e] border border-amber-800/80 hover:bg-[#301d14] hover:border-amber-500 text-amber-200 shadow-md transition-all active:scale-95 relative"
-            >
-              {isMobileMenuOpen ? <X className="w-4 h-4 text-amber-300" /> : <Menu className="w-4 h-4 text-amber-300" />}
-              {!isMobileMenuOpen && moveCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-stone-950 font-bold text-[9px] rounded-full flex items-center justify-center shadow">
-                  {moveCount}
-                </span>
-              )}
-            </button>
-          )}
         </div>
 
         {/* Zone 3 Mobile: icon-only compact right side */}
