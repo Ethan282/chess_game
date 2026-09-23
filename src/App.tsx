@@ -1051,7 +1051,7 @@ export default function App() {
                 <span>→</span>
                 <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
                 {moveHistory[moveHistory.length - 1].captured && (
-                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
+                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured?.toUpperCase()}</span>
                 )}
               </div>
             </div>
@@ -1155,7 +1155,7 @@ export default function App() {
                 <span>→</span>
                 <span className="font-bold text-amber-200">{moveHistory[moveHistory.length - 1].to.toUpperCase()}</span>
                 {moveHistory[moveHistory.length - 1].captured && (
-                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured.toUpperCase()}</span>
+                  <span className="text-red-400 font-bold ml-0.5">×{moveHistory[moveHistory.length - 1].captured?.toUpperCase()}</span>
                 )}
               </div>
             </div>
