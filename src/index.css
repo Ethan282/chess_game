@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cinzel', serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+}
+
+.font-display {
+  font-family: 'Cinzel', serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 3D Chess Board Stage & Perspective */
+.chess-3d-stage {
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.chess-3d-board-wrapper {
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: transform;
+}
+
+/* Procedural Rich Wood Textures */
+.wood-walnut-dark {
+  background-color: #2b1810;
+  background-image: 
+    radial-gradient(ellipse at 50% 40%, rgba(88, 48, 28, 0.45) 0%, rgba(20, 10, 6, 0.7) 100%),
+    repeating-linear-gradient(
+      105deg,
+      rgba(0, 0, 0, 0.18) 0px,
+      rgba(0, 0, 0, 0.05) 3px,
+      rgba(255, 255, 255, 0.02) 6px,
+      rgba(0, 0, 0, 0.22) 10px
+    );
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.55);
+}
+
+.wood-maple-light {
+  background-color: #eedcc0;
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, rgba(255, 248, 235, 0.65) 0%, rgba(214, 186, 149, 0.8) 100%),
+    repeating-linear-gradient(
+      82deg,
+      rgba(150, 100, 50, 0.07) 0px,
+      rgba(255, 255, 255, 0.09) 4px,
+      rgba(160, 110, 60, 0.05) 8px,
+      rgba(0, 0, 0, 0.03) 12px
+    );
+  box-shadow: inset 0 0 8px rgba(160, 120, 70, 0.25);
+}
+
+.wood-rim-frame {
+  background-color: #1a0e08;
+  background-image: 
+    linear-gradient(135deg, rgba(80, 40, 20, 0.6) 0%, rgba(30, 14, 8, 0.95) 50%, rgba(15, 7, 4, 1) 100%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(255, 255, 255, 0.03) 8px,
+      rgba(0, 0, 0, 0.35) 16px
+    );
+  box-shadow: 
+    0 35px 60px -15px rgba(0, 0, 0, 0.85),
+    0 15px 25px -10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 2px rgba(255, 215, 140, 0.25),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* 3D Slab Extrusions for the Wooden Board Thickness */
+.wood-slab-front {
+  transform: rotateX(-90deg) translateZ(14px);
+  transform-origin: bottom;
+  height: 28px;
+  background: linear-gradient(180deg, #3a1e12 0%, #170b06 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 200, 140, 0.3), inset 0 -2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.wood-slab-right {
+  transform: rotateY(90deg) translateZ(14px);
+  transform-origin: right;
+  width: 28px;
+  background: linear-gradient(90deg, #2b150c 0%, #120804 100%);
+  box-shadow: inset 1px 0 0 rgba(255, 200, 140, 0.2), inset -2px 0 6px rgba(0, 0, 0, 0.9);
+}
+
+.wood-slab-left {
+  transform: rotateY(-90deg) translateZ(14px);
+  transform-origin: left;
+  width: 28px;
+  background: linear-gradient(270deg, #442416 0%, #1e0d07 100%);
+  box-shadow: inset -1px 0 0 rgba(255, 200, 140, 0.25), inset 2px 0 6px rgba(0, 0, 0, 0.9);
+}
+
+.wood-slab-back {
+  transform: rotateX(90deg) translateZ(14px);
+  transform-origin: top;
+  height: 28px;
+  background: linear-gradient(0deg, #211009 0%, #100603 100%);
+}
+
+/* Brass Corner Accents */
+.brass-corner {
+  background: linear-gradient(135deg, #ffe082 0%, #d4af37 40%, #8c6d1f 85%, #594109 100%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5), inset 0 0.5px 0.5px rgba(255,255,255,0.7);
+}
+
+/* Custom scrollbar for notation */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(25, 20, 18, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 130, 80, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(210, 155, 95, 0.45);
+}
+
+/* Move Point and Target Animations */
+@keyframes movePointGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(251, 191, 36, 0.9), 0 2px 6px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes captureRingPulse {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.85;
+    border-color: rgba(245, 158, 11, 0.85);
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+    border-color: rgba(251, 191, 36, 1);
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.7), inset 0 0 12px rgba(245, 158, 11, 0.3);
+  }
+}
+
+@keyframes invalidShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-move-point {
+  animation: movePointGlow 1.8s ease-in-out infinite;
+}
+
+.animate-capture-ring {
+  animation: captureRingPulse 1.8s ease-in-out infinite;
+}
+
+.animate-invalid-shake {
+  animation: invalidShake 0.35s ease-in-out;
+}

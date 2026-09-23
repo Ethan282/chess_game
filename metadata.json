@@ -1,0 +1,6 @@
+{
+  "name": "Grandmaster 3D Chess",
+  "description": "A professional chess web application featuring an exquisite 3D handcrafted wooden board, smart AI engine, multi-perspective camera, move analysis, and authentic tournament clocks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
